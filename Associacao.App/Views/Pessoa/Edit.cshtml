@@ -1,0 +1,116 @@
+﻿@*@model Associacao.Domain.Entities.Pessoa*@
+@model Associacao.App.Models.PessoaMensalidadeViewModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Editar</h1>
+
+<h4>@Html.DisplayFor(model => model.Pessoa.Nome)</h4>
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            @*<input type="hidden" asp-for="Id" />*@
+            <dl class="row">
+                <dt class="col-sm-2">
+                    Ativo
+                </dt>
+                <dd class="col-sm-4">
+                    @Html.DisplayFor(model => model.Pessoa.Ativo)
+                </dd>
+                <dt class="col-sm-2">
+                    Isento
+                </dt>
+                <dd class="col-sm-4">
+                    @Html.DisplayFor(model => model.Pessoa.Isento)
+                </dd>
+                <dt class="col-sm-2">
+                    Nome
+                </dt>
+                <dd class="col-sm-4">
+                    @Html.TextBoxFor(model => model.Pessoa.Nome)
+                </dd>
+                <dt class="col-sm-2">
+                    Num. Cadastro
+                </dt>
+                <dd class="col-sm-4">
+                    @Html.TextBoxFor(model => model.Pessoa.NumeroCadastro)
+                </dd>
+                <dt class="col-sm-2">
+                    RG
+                </dt>
+                <dd class="col-sm-4">
+                    @Html.TextBoxFor(model => model.Pessoa.RG)
+                </dd>
+                <dt class="col-sm-2">
+                    Telefone 1
+                </dt>
+                <dd class="col-sm-4">
+                    @Html.TextBoxFor(model => model.Pessoa.Telefone1)
+                </dd>
+                <dt class="col-sm-2">
+                    Data de Nasc.
+                </dt>
+                <dd class="col-sm-4">
+                    @Html.TextBoxFor(model => model.Pessoa.DataNascimento)
+                </dd>
+                <dt class="col-sm-2">
+                    Telefone 2
+                </dt>
+                <dd class="col-sm-4">
+                    @Html.TextBoxFor(model => model.Pessoa.Telefone2)
+                </dd>
+                <dt class="col-sm-2">
+                    Quantidade Casas
+                </dt>
+                <dd class="col-sm-4">
+                    @Html.TextBoxFor(model => model.Pessoa.QuantidadeCasas)
+                </dd>
+                <dt class="col-sm-2">
+                    Data Cadastro
+                </dt>
+                <dd class="col-sm-4">
+                    @Html.TextBoxFor(model => model.Pessoa.CriadoEm)
+                </dd>
+                <dd class="col-sm-12">
+                    <hr />
+                </dd>
+                <dt class="col-sm-2">
+                    Endereço
+                </dt>
+                <dd class="col-sm-6">
+                    @Html.DisplayFor(model => model.Pessoa.Logradouro) @Html.DisplayFor(model => model.Pessoa.Numero) - @Html.DisplayFor(model => model.Pessoa.Bairro) (@Html.DisplayFor(model => model.Pessoa.Complemento))
+                </dd>
+                <dd class="col-sm-4">
+
+                </dd>
+                <dt class="col-sm-2">
+                    CEP
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.Pessoa.Cep)
+                </dd>
+                <dd class="col-sm-12">
+                    <br />
+                </dd>
+                <dt class="col-sm-2">
+                    Observação
+                </dt>
+                <dd class="col-sm-4">
+                    @Html.TextAreaFor(model => model.Pessoa.Observacao, new )
+                </dd>
+            </dl>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
