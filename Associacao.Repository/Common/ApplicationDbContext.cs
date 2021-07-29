@@ -8,6 +8,7 @@ namespace Associacao.Repository.Common
     {
         public DbSet<Pessoa> Pessoas { get; set; }
         public DbSet<Mensalidade> Mensalidades { get; set; }
+        public DbSet<Configuracao> Configuracoes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

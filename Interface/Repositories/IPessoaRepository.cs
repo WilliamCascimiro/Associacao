@@ -11,6 +11,7 @@ namespace Associacao.Interface.Repositories
         void Create(Pessoa pessoa);
         int Alterar(Pessoa pessoa);
         List<Pessoa> GetComplete();
+        List<Pessoa> GetComplete(string cadastro, string nome, int slcPagamento);
         void GetComplete2();
     }
 }

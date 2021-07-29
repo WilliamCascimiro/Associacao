@@ -1,14 +1,40 @@
 ﻿@model IEnumerable<Associacao.Domain.Entities.Pessoa>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Lista de pessoas";
+    var statusPagamento = (IEnumerable<SelectListItem>)TempData["statusPagamento"];
 }
 
-<h1>Index</h1>
+<h1>@ViewData["Title"]</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create">Cadastrar Novo</a>
 </p>
+
+<div class="row">
+    <div class="col-md-12">
+        <form asp-action="Index">
+            <div class="row">
+                <div class="form-group col-md-1">
+                    <label class="control-label">Cadastro</label>
+                    <input name="cadastro" class="form-control" value="@ViewBag.Cadastro" />
+                </div>
+                <div class="form-group col-md-3">
+                    <label class="control-label">Nome</label>
+                    <input name="nome" class="form-control" value="@ViewBag.Nome" />
+                </div>
+                <div class="form-group col-md-2">
+                    <label class="control-label">Pagamento</label>
+                    @Html.DropDownList("slcPagamento", new SelectList(statusPagamento, "Value", "Text", ViewBag.SlcPagamento), new { @class = "form-control" })
+                </div>
+                <div class="form-group col-md-1">
+                    <input type="submit" value="Buscar" class="btn btn-primary" style="margin-top: 60px" />
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 <table class="table">
     <thead>
         <tr>

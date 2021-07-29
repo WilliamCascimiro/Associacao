@@ -33,6 +33,45 @@ namespace Associacao.Repository.Repositories
                 .ToList();
         }
 
+        public List<Pessoa> GetComplete(string cadastro, string nome, int slcPagamento)
+        {
+            if (String.IsNullOrEmpty(cadastro))
+                cadastro = "";
+
+            if (String.IsNullOrEmpty(nome))
+                nome = "";
+
+            bool? pag = null;
+
+            if (slcPagamento == 1)
+                pag = true;
+            else if(slcPagamento == 2)
+                pag = false;
+
+            var result = _dbContext.Pessoas
+                .Include(x => x.Mensalidades)
+                .Select(s => new Pessoa
+                {
+                    Id = s.Id,
+                    Nome = s.Nome,
+                    Logradouro = s.Logradouro,
+                    Numero = s.Numero,
+                    Complemento = s.Complemento,
+                    Telefone1 = "(" + s.Telefone1.Substring(0, 2) + ") " + s.Telefone1.Substring(2, 5) + "-" + s.Telefone1.Substring(7, 4),
+                    NumeroCadastro = s.NumeroCadastro,
+                    QuantidadeCasas = s.QuantidadeCasas,
+                    Adimplente = s.Mensalidades.Where(m => m.DataVencimento < DateTime.Now && m.Pago == false).Count() >= 1 ? false : true
+                })
+                .ToList();
+
+            result = result.Where(x => x.NumeroCadastro.Contains(cadastro) && 
+                                        x.Nome.Contains(nome) && 
+                                        x.Adimplente == (pag == null ? x.Adimplente : pag)
+                                       ).ToList();
+
+            return result;
+        }
+
         public List<Pessoa> GetComplete()
         {
             var teste = _dbContext.Pessoas

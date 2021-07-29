@@ -1,0 +1,45 @@
+﻿@model Associacao.App.Models.ConfiguracaoViewModel
+@{
+    ViewData["Title"] = "Configurações";
+}
+
+<h3>@ViewData["Title"]</h3>
+<br />
+<div class="row">
+    <div class="col-md-12">
+        <form asp-action="Index">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="row">
+                <div class="form-group col-md-3">
+                    <label asp-for="DataCobrancaInicial" class="control-label"></label>
+                    <input asp-for="DataCobrancaInicial" class="form-control" />
+                    <span asp-validation-for="DataCobrancaInicial" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-3">
+                    <label asp-for="DataCobrancaFinal" class="control-label"></label>
+                    <input asp-for="DataCobrancaFinal" class="form-control" />
+                    <span asp-validation-for="DataCobrancaFinal" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-3">
+                    <label asp-for="ValorMensalidade" class="control-label"></label>
+                    <input asp-for="ValorMensalidade" class="form-control" />
+                    <span asp-validation-for="ValorMensalidade" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-4">
+                </div>
+                <div class="form-group col-md-1">
+                    <input type="submit" value="Salvar" class="btn btn-primary" style="margin-top: 60px" />
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Voltar</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

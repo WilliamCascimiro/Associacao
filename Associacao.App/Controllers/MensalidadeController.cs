@@ -9,16 +9,54 @@ using Associacao.Domain.Entities;
 using Associacao.Repository.Common;
 using Associacao.Interface.Repositories;
 using Microsoft.Extensions.DependencyInjection;
+using Associacao.App.Models;
 
 namespace Associacao.App.Controllers
 {
+    [Route("mensalidade")]
     public class MensalidadeController : Controller
     {
-        protected readonly IServiceProvider _serviceProvider;
+        protected readonly IMensalidadeRepository _mensalidadeRepository;
+        protected readonly IPessoaRepository _pessoaRepository;
 
-        public MensalidadeController(IServiceProvider serviceProvider)
+        public MensalidadeController(IMensalidadeRepository mensalidadeRepository, IPessoaRepository pessoaRepository)
         {
-            _serviceProvider = serviceProvider;
+            _mensalidadeRepository = mensalidadeRepository;
+            _pessoaRepository = pessoaRepository;
+        }
+
+        //[HttpGet]
+        [Route("")]
+        [Route("index")]
+        public IActionResult Index(DateTime? dataVencimentoInicial, DateTime? dataVencimentoFinal, int slcPagamento)
+        {
+            var statusPagamento = new List<SelectListItem> {
+                new SelectListItem() { Value = "0", Text = "Todos" },
+                new SelectListItem() { Value = "1", Text = "Pago" },
+                new SelectListItem() { Value = "2", Text = "Não pago" }
+            };
+
+            var mensalidades = _mensalidadeRepository.GetAll(dataVencimentoInicial, dataVencimentoFinal, slcPagamento);
+            var listaMensalidadeViewModel = new List<MensalidadeViewModel>();
+
+            foreach (var mensalidade in mensalidades)
+            {
+                var mensalidadeViewModel = new MensalidadeViewModel()
+                {
+                    Id = mensalidade.Id,
+                    DataVencimento = mensalidade.DataVencimento,
+                    DataPagamento = mensalidade.DataPagamento,
+                    Valor = mensalidade.Valor,
+                    Pago = mensalidade.Pago,
+                    Pessoa = mensalidade.Pessoa,
+                };
+
+                listaMensalidadeViewModel.Add(mensalidadeViewModel);
+            }
+
+            TempData["statusPagamento"] = statusPagamento;
+
+            return View(listaMensalidadeViewModel);
         }
 
         // GET: Mensalidade
@@ -33,11 +71,8 @@ namespace Associacao.App.Controllers
 
         public IActionResult MensalidadesPorPessoa(int id)
         {
-            var mensalidadeRepository = (IMensalidadeRepository)_serviceProvider.GetService(typeof(IMensalidadeRepository));
-            var pessoaRepository = (IPessoaRepository)_serviceProvider.GetService(typeof(IPessoaRepository));
-
-            var pessoa = pessoaRepository.Detail(id);
-            var mensalidades = mensalidadeRepository.MensalidadePorPessoaAnoCorrente(id);
+            var pessoa = _pessoaRepository.Detail(id);
+            var mensalidades = _mensalidadeRepository.MensalidadePorPessoaAnoCorrente(id);
 
             ViewBag.NomePessoa = pessoa.Nome;
 
@@ -47,8 +82,7 @@ namespace Associacao.App.Controllers
         [HttpGet]
         public JsonResult MensalidadesPorPessoaGet(int id)
         {
-            var mensalidadeRepository = (IMensalidadeRepository)_serviceProvider.GetService(typeof(IMensalidadeRepository));
-            var mensalidades = mensalidadeRepository.MensalidadePorPessoaAnoCorrente(id);
+            var mensalidades = _mensalidadeRepository.MensalidadePorPessoaAnoCorrente(id);
 
             return new JsonResult(mensalidades);
         }
@@ -65,14 +99,12 @@ namespace Associacao.App.Controllers
         // GET: Mensalidade/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            var mensalidadeRepository = (IMensalidadeRepository)_serviceProvider.GetService(typeof(IMensalidadeRepository));
-
             if (id == null)
             {
                 return NotFound();
             }
 
-            var mensalidade = mensalidadeRepository.Detail(id);
+            var mensalidade = _mensalidadeRepository.Detail(id);
             if (mensalidade == null)
             {
                 return NotFound();
@@ -84,15 +116,13 @@ namespace Associacao.App.Controllers
         [HttpPost]
         public JsonResult PagarMensalidade(int id)
         {
-            var mensalidadeRepository = (IMensalidadeRepository)_serviceProvider.GetService(typeof(IMensalidadeRepository));
-            return new JsonResult(mensalidadeRepository.PagarMensalidade(id));
+            return new JsonResult(_mensalidadeRepository.PagarMensalidade(id));
         }
 
         [HttpPost]
         public JsonResult ReabrirMensalidade(int id)
         {
-            var mensalidadeRepository = (IMensalidadeRepository)_serviceProvider.GetService(typeof(IMensalidadeRepository));
-            return new JsonResult(mensalidadeRepository.ReabrirMensalidade(id));
+            return new JsonResult(_mensalidadeRepository.ReabrirMensalidade(id));
         }
 
         //// GET: Mensalidade/Create

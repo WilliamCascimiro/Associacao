@@ -7,7 +7,8 @@ namespace Associacao.Interface.Repositories
 {
     public interface IMensalidadeRepository
     {
-        List<Mensalidade> Get();
+        List<Mensalidade> GetAll();
+        List<Mensalidade> GetAll(DateTime? dataVencimentoInicial, DateTime? dataVencimentoFinal, int slcPagamento);        
         List<Mensalidade> Search(int idPessoa);
         List<Mensalidade> SearchByVencimento(DateTime dataVencimento);
         List<Mensalidade> SearchByPagamento(DateTime dataPagamento);

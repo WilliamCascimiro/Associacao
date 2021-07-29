@@ -61,9 +61,27 @@ namespace Associacao.Repository.Repositories
         }
 
 
-        public List<Mensalidade> Get()
+        public List<Mensalidade> GetAll()
         {
-            return _dbContext.Mensalidades.ToList();
+            return _dbContext.Mensalidades.Include(m => m.Pessoa).ToList();
+        }
+
+        public List<Mensalidade> GetAll(DateTime? dataVencimentoInicial, DateTime? dataVencimentoFinal, int slcPagamento)
+        {
+            bool? pago = null;
+            if (slcPagamento == 1)
+                pago = true;
+            else if(slcPagamento == 2)
+                pago = false;
+
+            var select = _dbContext.Mensalidades.Include(m => m.Pessoa).ToList();
+            var result = select
+                        .Where(x => x.DataVencimento >= (dataVencimentoInicial == null ? x.DataVencimento : dataVencimentoInicial) 
+                                 && x.DataVencimento <= (dataVencimentoFinal == null ? x.DataVencimento : dataVencimentoFinal)
+                                 && x.Pago == (pago == null ? x.Pago : pago) )
+                        .ToList();
+
+            return result;
         }
 
         public List<Mensalidade> Search(int idPessoa)

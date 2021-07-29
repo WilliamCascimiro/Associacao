@@ -1,28 +1,57 @@
-﻿@model IEnumerable<Associacao.Domain.Entities.Mensalidade>
+﻿@model IEnumerable<Associacao.App.Models.MensalidadeViewModel>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Lista de mensalidades";
+    var statusPagamento = (IEnumerable<SelectListItem>)TempData["statusPagamento"];
 }
 
-<h1>Index</h1>
+<h1>@ViewData["Title"]</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <br/>
 </p>
+
+<div class="row">
+    <div class="col-md-12">
+        <form asp-action="Index">
+            <div class="row">
+                <div class="form-group col-md-3">
+                    <label class="control-label">Vencimento inicial</label>
+                    <input name="dataVencimentoInicial" class="form-control" type="date"/>
+                </div>
+                <div class="form-group col-md-3">
+                    <label class="control-label">Vencimento final</label>
+                    <input name="dataVencimentoFinal" class="form-control" type="date" />
+                </div>
+                <div class="form-group col-md-2">
+                    <label class="control-label">Pagamento</label>
+                    @Html.DropDownList("slcPagamento", new SelectList(statusPagamento, "Value", "Text", ViewBag.SlcPagamento), new { @class = "form-control" })
+                </div>
+                <div class="form-group col-md-1">
+                    <input type="submit" value="Buscar" class="btn btn-primary" style="margin-top: 60px" />
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.DataVencimento)
+                <label asp-for="First().Pago"></label>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.DataPagamento)
+                <label asp-for="First().DataVencimento"></label>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Pago)
+                <label asp-for="First().DataPagamento"></label>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Pessoa)
+                <label asp-for="First().Valor"></label>
+            </th>
+            <th>
+                <label asp-for="First().Pessoa"></label>
             </th>
             <th></th>
         </tr>
@@ -31,16 +60,19 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.DataVencimento)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DataPagamento)
-            </td>
-            <td>
                 @Html.DisplayFor(modelItem => item.Pago)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Pessoa.Bairro)
+                @item.DataVencimento
+            </td>
+            <td>
+                @item.DataPagamento
+            </td>
+            <td>
+                @item.Valor
+            </td>
+            <td>
+                @item.Pessoa.Nome
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

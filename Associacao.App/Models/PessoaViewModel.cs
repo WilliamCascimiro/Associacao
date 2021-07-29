@@ -10,25 +10,21 @@ namespace Associacao.App.Models
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Número de Cadastro")]
-        [MinLength(1)]
-        [MaxLength(10)]
+        [DefaultValue(1)]
         [DisplayName("Número de Cadastro")]
         public string NumeroCadastro { get; set; }
 
         [Required(ErrorMessage = "Nome é obrigatório")]
-        [MinLength(2)]
-        [MaxLength(200)]
+        [StringLength(200, MinimumLength = 2, ErrorMessage = "O nome precisa ter entre 2 e 200 caracteres.")]
         [DisplayName("Nome")]
         public string Nome { get; set; }
 
-        [DisplayName("RG")]
         [MinLength(9)]
         [MaxLength(9)]
+        [DisplayName("RG")]
         public string RG { get; set; }
 
-        [DataType(DataType.Date)]
-        //[DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:yyyy-MM-dd}")]
-        //[DataType(DataType.Date, ErrorMessage = "Data em formato inválido")]
+        [DataType(DataType.Date, ErrorMessage = "Data em formato inválido")]
         [DisplayName("Data de Nascimento")]
         public DateTime? DataNascimento { get; set; }
 
@@ -77,13 +73,10 @@ namespace Associacao.App.Models
         [DisplayName("Quantida de Casa(s)")]
         public int QuantidadeCasas { get; set; }
 
-        [DefaultValue(true)]
+        [DisplayName("Ativo")]
+        public bool Ativo { get; set; }
+
         [DisplayName("Isento")]
         public bool Isento { get; set; }
-
-        //[Range(1, 100)]
-        //[DataType(DataType.Currency)]
-        //[Column(TypeName = "decimal(18, 2)")]
-        //public decimal Price { get; set; }
     }
 }

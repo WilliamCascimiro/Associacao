@@ -15,6 +15,7 @@ namespace Associacao.App
         {
             serviceProvider.AddScoped<IPessoaRepository, PessoaRepository>();
             serviceProvider.AddScoped<IMensalidadeRepository, MensalidadeRepository>();
+            serviceProvider.AddScoped<IConfiguracaoRepository, ConfiguracaoRepository>();
         }
     }
 }

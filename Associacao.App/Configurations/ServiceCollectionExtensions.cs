@@ -13,7 +13,7 @@ namespace Associacao.App.Configurations
         public static IServiceCollection AddInfrastructure(this IServiceCollection services)
         {
             services.AddScoped<IPessoaRepository, PessoaRepository>();
-            services.AddScoped<IMensalidadeRepository, MensalidadeRepository>();
+            //services.AddScoped<IConfiguracaoRepository, MensalidadeRepository>();
 
             return services;
         }
