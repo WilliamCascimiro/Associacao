@@ -24,7 +24,7 @@ namespace Associacao.App.Controllers
             _mensalidadeRepository = mensalidadeRepository;
             _pessoaRepository = pessoaRepository;
         }
-
+        //[HttpGet]
         [Route("")]
         [Route("index")]
         public IActionResult Index(DateTime? dataVencimentoInicial, DateTime? dataVencimentoFinal, int statusPagamento)
