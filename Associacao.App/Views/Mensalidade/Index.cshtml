@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Lista de mensalidades";
-    var statusPagamento = (IEnumerable<SelectListItem>)TempData["statusPagamento"];
+    var listaTipoPagamento = (IEnumerable<SelectListItem>)TempData["listaTipoPagamento"];
 }
 
 <h1>@ViewData["Title"]</h1>
@@ -17,18 +17,20 @@
             <div class="row">
                 <div class="form-group col-md-3">
                     <label class="control-label">Vencimento inicial</label>
-                    <input name="dataVencimentoInicial" class="form-control" type="date"/>
+                    <input name="dataVencimentoInicial" class="form-control" type="date" value="@ViewBag.DataVencimentoInicial"/>
                 </div>
                 <div class="form-group col-md-3">
                     <label class="control-label">Vencimento final</label>
-                    <input name="dataVencimentoFinal" class="form-control" type="date" />
+                    <input name="dataVencimentoFinal" class="form-control" type="date" value="@ViewBag.DataVencimentoFinal" />
                 </div>
                 <div class="form-group col-md-2">
                     <label class="control-label">Pagamento</label>
-                    @Html.DropDownList("slcPagamento", new SelectList(statusPagamento, "Value", "Text", ViewBag.SlcPagamento), new { @class = "form-control" })
+                    @Html.DropDownList("statusPagamento", new SelectList(listaTipoPagamento, "Value", "Text", ViewBag.statusPagamento), new { @class = "form-control" })
+                </div>
+                <div class="form-group col-md-3">
                 </div>
                 <div class="form-group col-md-1">
-                    <input type="submit" value="Buscar" class="btn btn-primary" style="margin-top: 60px" />
+                    <input type="submit" value="Buscar" class="btn btn-primary" style="margin-top: 32px" />
                 </div>
             </div>
         </form>

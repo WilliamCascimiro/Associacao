@@ -5,6 +5,7 @@ using Associacao.Domain.Entities;
 using Associacao.Interface.Repositories;
 using Associacao.Repository.Common;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace Associacao.Repository.Repositories
 {
@@ -19,10 +20,10 @@ namespace Associacao.Repository.Repositories
 
         public Pessoa Detail(int id)
         {
-            return _dbContext.Pessoas
-                .Include(x => x.Mensalidades)
-                .Where(x => x.Ativo && x.Id == id)
-                .FirstOrDefault();
+            return  _dbContext.Pessoas
+                    .Include(x => x.Mensalidades)
+                    .Where(x => x.Ativo && x.Id == id)
+                    .FirstOrDefault();
         }
 
         public List<Pessoa> Get()
