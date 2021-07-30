@@ -24,19 +24,12 @@ namespace Associacao.App.Controllers
             _mensalidadeRepository = mensalidadeRepository;
             _pessoaRepository = pessoaRepository;
         }
-
         //[HttpGet]
         [Route("")]
         [Route("index")]
-        public IActionResult Index(DateTime? dataVencimentoInicial, DateTime? dataVencimentoFinal, int slcPagamento)
+        public IActionResult Index(DateTime? dataVencimentoInicial, DateTime? dataVencimentoFinal, int statusPagamento)
         {
-            var statusPagamento = new List<SelectListItem> {
-                new SelectListItem() { Value = "0", Text = "Todos" },
-                new SelectListItem() { Value = "1", Text = "Pago" },
-                new SelectListItem() { Value = "2", Text = "Não pago" }
-            };
-
-            var mensalidades = _mensalidadeRepository.GetAll(dataVencimentoInicial, dataVencimentoFinal, slcPagamento);
+            var mensalidades = _mensalidadeRepository.GetAll(dataVencimentoInicial, dataVencimentoFinal, statusPagamento);
             var listaMensalidadeViewModel = new List<MensalidadeViewModel>();
 
             foreach (var mensalidade in mensalidades)
@@ -50,11 +43,19 @@ namespace Associacao.App.Controllers
                     Pago = mensalidade.Pago,
                     Pessoa = mensalidade.Pessoa,
                 };
-
                 listaMensalidadeViewModel.Add(mensalidadeViewModel);
             }
 
-            TempData["statusPagamento"] = statusPagamento;
+            var listaTipoPagamento = new List<SelectListItem> {
+                new SelectListItem() { Value = "0", Text = "Todos" },
+                new SelectListItem() { Value = "1", Text = "Pago" },
+                new SelectListItem() { Value = "2", Text = "Não pago" }
+            };
+            TempData["listaTipoPagamento"] = listaTipoPagamento;
+
+            ViewBag.DataVencimentoInicial = (dataVencimentoInicial is null ? "" : $"{dataVencimentoInicial.Value.Year}-{dataVencimentoInicial.Value.Month.ToString("d2")}-{dataVencimentoInicial.Value.Day.ToString("d2")}");
+            ViewBag.DataVencimentoFinal = (dataVencimentoFinal is null ? "" : $"{dataVencimentoFinal.Value.Year}-{dataVencimentoFinal.Value.Month.ToString("d2")}-{dataVencimentoFinal.Value.Day.ToString("d2")}");
+            ViewBag.SlcPagamento = statusPagamento;
 
             return View(listaMensalidadeViewModel);
         }
@@ -69,6 +70,7 @@ namespace Associacao.App.Controllers
         //    //return View(await applicationDbContext.ToListAsync());
         //}
 
+        [Route("mensalidade-por-pessoa")]
         public IActionResult MensalidadesPorPessoa(int id)
         {
             var pessoa = _pessoaRepository.Detail(id);
@@ -79,13 +81,13 @@ namespace Associacao.App.Controllers
             return View(mensalidades);
         }
 
-        [HttpGet]
-        public JsonResult MensalidadesPorPessoaGet(int id)
-        {
-            var mensalidades = _mensalidadeRepository.MensalidadePorPessoaAnoCorrente(id);
+        //[HttpGet]
+        //public JsonResult MensalidadesPorPessoaGet(int id)
+        //{
+        //    var mensalidades = _mensalidadeRepository.MensalidadePorPessoaAnoCorrente(id);
 
-            return new JsonResult(mensalidades);
-        }
+        //    return new JsonResult(mensalidades);
+        //}
 
         //[HttpPost]
         //public JsonResult MensalidadesPorPessoaPost()
@@ -114,13 +116,15 @@ namespace Associacao.App.Controllers
         }
 
         [HttpPost]
+        [Route("pagar-mensalidade")]
         public JsonResult PagarMensalidade(int id)
         {
             return new JsonResult(_mensalidadeRepository.PagarMensalidade(id));
         }
 
         [HttpPost]
-        public JsonResult ReabrirMensalidade(int id)
+        [Route("reabrir-mensalidade")]
+        public IActionResult ReabrirMensalidade(int id)
         {
             return new JsonResult(_mensalidadeRepository.ReabrirMensalidade(id));
         }
