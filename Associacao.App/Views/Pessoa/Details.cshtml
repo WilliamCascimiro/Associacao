@@ -48,40 +48,40 @@
             </div>
         </div>
         <div class="row" id="squares">
-            <div class="col">
+            <div id="sqr01" class="col">
                 <div class="square"></div>
             </div>
-            <div class="col">
+            <div id="sqr02" class="col">
                 <div class="square"></div>
             </div>
-            <div class="col">
+            <div id="sqr03" class="col">
                 <div class="square"></div>
             </div>
-            <div class="col">
+            <div id="sqr04" class="col">
                 <div class="square"></div>
             </div>
-            <div class="col">
+            <div id="sqr05" class="col">
                 <div class="square"></div>
             </div>
-            <div class="col">
+            <div id="sqr06" class="col">
                 <div class="square"></div>
             </div>
-            <div class="col">
+            <div id="sqr07" class="col">
                 <div class="square"></div>
             </div>
-            <div class="col">
+            <div id="sqr08" class="col">
                 <div class="square"></div>
             </div>
-            <div class="col">
+            <div id="sqr09" class="col">
                 <div class="square"></div>
             </div>
-            <div class="col">
+            <div id="sqr10" class="col">
                 <div class="square"></div>
             </div>
-            <div class="col">
+            <div id="sqr11" class="col">
                 <div class="square"></div>
             </div>
-            <div class="col">
+            <div id="sqr12" class="col">
                 <div class="square"></div>
             </div>
         </div>
@@ -197,17 +197,48 @@
                 url: "/Mensalidade/MensalidadesPorPessoaGet",
                 data: { id: @Model.Pessoa.Id },
                 success: function (result) {
-                    document.querySelector('#squares').innerHTML = '';
-                    result.forEach(function (item, index) {
-                        let isPago = 'square-not-pay';
-                        if (item.pago)
-                            isPago = 'square-pay';
+                    //document.querySelector('#squares').innerHTML = '';
+                    //result.forEach(function (item, index) {
+                    //    let isPago = 'square-not-pay';
+                    //    if (item.pago)
+                    //        isPago = 'square-pay';
 
-                        document.querySelector('#squares').innerHTML += `<div class="col"><div class="${isPago}"></div></div>`;
-                        console.log(item);
-                    });
+                    //    document.querySelector('#squares').innerHTML += `<div class="col"><div class="${isPago}"></div></div>`;
+                    //    console.log(item);
+                    //    console.log(item.dataVencimento.substring(5, 7));
+                    //});
 
+                    for (var i = 1; i <= 12; i++) {
+                        let mes = ("0" + i).slice(-2);
+                        //console.log(result[i]);
+                        //console.log(result.includes("-01-"));
+                        
+                        var mensalidade = result.filter(obj => {
+                            return obj.mesVencimento === mes
+                        });
 
+                        console.log(mes);
+                        console.log(mensalidade);
+                        console.log(mensalidade.pago);
+
+                        if (mensalidade == "")
+                            console.log("não encontrado");
+                        else if (mensalidade.pago == true)
+                            console.log("pago");
+                        else
+                            console.log("não pago");
+
+                        //let isPago = 'square-not-pay';
+                        //if (item.pago)
+                        //    isPago = 'square-pay';
+
+                        //document.querySelector('#squares').innerHTML += `<div class="col"><div class="${isPago}"></div></div>`;
+                        //console.log(item);
+                        //console.log(item.dataVencimento.substring(5, 7));
+                        
+                    };
+
+                    
                     
                 },
             });

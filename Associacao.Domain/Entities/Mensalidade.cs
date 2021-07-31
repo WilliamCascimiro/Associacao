@@ -8,12 +8,12 @@ namespace Associacao.Domain.Entities
 {
     public class Mensalidade : BaseDomain
     {
-        public DateTime DataVencimento { get; private set; }
-        public DateTime? DataPagamento { get; private set; }
-        public bool Pago { get; private set; }
-        public float Valor { get; private set; }
-        public int IdPessoa { get; private set; }
-        public virtual Pessoa Pessoa { get; private set; }
+        public DateTime DataVencimento { get; set; }
+        public DateTime? DataPagamento { get; set; }
+        public bool Pago { get; set; }
+        public float Valor { get; set; }
+        public int IdPessoa { get; set; }
+        public virtual Pessoa Pessoa { get; set; }
 
         public Mensalidade()
         {

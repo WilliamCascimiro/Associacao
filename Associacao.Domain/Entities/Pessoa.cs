@@ -14,7 +14,7 @@ namespace Associacao.Domain.Entities
         //public IEnumerable<string> NomeResumido => Nome.Split("").Select(x => x[0] + "" + x[1]);
         public IEnumerable<string> NomeResumido { get; set; }
         public string RG { get; set; }
-        public DateTime DataNascimento { get; set; }
+        public DateTime? DataNascimento { get; set; }
         public string Telefone1 { get; set; }
         public string Telefone2 { get; set; }
         public string Bairro { get; set; }

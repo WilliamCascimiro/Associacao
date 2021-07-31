@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
+using Associacao.Domain.Entities;
 
 namespace Associacao.App.Models
 {
@@ -78,5 +79,52 @@ namespace Associacao.App.Models
 
         [DisplayName("Isento")]
         public bool Isento { get; set; }
+
+        public Pessoa ToEntity()
+        {
+            Pessoa pessoa = new()
+            {
+                Id = this.Id,
+                NumeroCadastro = this.NumeroCadastro,
+                Nome = this.Nome,
+                RG = this.RG,
+                DataNascimento = this.DataNascimento,
+                Telefone1 = this.Telefone1,
+                Telefone2 = this.Telefone2,
+                Bairro = this.Bairro,
+                Logradouro = this.Logradouro,
+                Numero = this.Numero,
+                Complemento = this.Complemento,
+                Cep = this.CEP,
+                Observacao = this.Observacao,
+                QuantidadeCasas = this.QuantidadeCasas,
+                Ativo = this.Ativo,
+                Isento = this.Isento,
+            };
+            return pessoa;
+        }
+
+        public PessoaViewModel ToViewModel(Pessoa pessoa)
+        {
+            Id = pessoa.Id;
+            NumeroCadastro = pessoa.NumeroCadastro;
+            Nome = pessoa.Nome;
+            RG = pessoa.RG;
+            DataNascimento = pessoa.DataNascimento;
+            Telefone1 = pessoa.Telefone1;
+            Telefone2 = pessoa.Telefone2;
+            Bairro = pessoa.Bairro;
+            Logradouro = pessoa.Logradouro;
+            Numero = pessoa.Numero;
+            Complemento = pessoa.Complemento;
+            CEP = pessoa.Cep;
+            Observacao = pessoa.Observacao;
+            QuantidadeCasas = pessoa.QuantidadeCasas;
+            Ativo = pessoa.Ativo;
+            Isento = pessoa.Isento;
+
+            return this;
+        }
+
     }
 }
