@@ -81,13 +81,15 @@ namespace Associacao.App.Controllers
             return View(mensalidades);
         }
 
-        //[HttpGet]
-        //public JsonResult MensalidadesPorPessoaGet(int id)
-        //{
-        //    var mensalidades = _mensalidadeRepository.MensalidadePorPessoaAnoCorrente(id);
+        [HttpGet]
+        [Route("MensalidadesPorPessoaGet")]
+        public IActionResult MensalidadesPorPessoaGet(int id)
+        {
+            var mensalidades = _mensalidadeRepository.MensalidadePorPessoaAnoCorrente(id);
+            var mensalidadeViewModel = new MensalidadeViewModel().ToListViewModel(mensalidades);
 
-        //    return new JsonResult(mensalidades);
-        //}
+            return new JsonResult(mensalidadeViewModel);
+        }
 
         //[HttpPost]
         //public JsonResult MensalidadesPorPessoaPost()

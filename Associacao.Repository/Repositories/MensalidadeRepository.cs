@@ -21,10 +21,24 @@ namespace Associacao.Repository.Repositories
 
         public void Create(int pessoaId, int quantidadeCasas)
         {
-            var mensalidadesList = new List<Mensalidade>();
-            //var mensalidadeInicial = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
+            List<Mensalidade> mensalidadesList = new();
             var mensalidadeInicial = new DateTime(2020, 12, 30);
             var mensalidadeFinal = new DateTime(2022, 12, 30);
+            float valorMensalidade = 10 * quantidadeCasas;
+
+            while (mensalidadeInicial <= mensalidadeFinal)
+            {
+                mensalidadeInicial = mensalidadeInicial.AddMonths(1);
+                mensalidadesList.Add(new Mensalidade(pessoaId, mensalidadeInicial, valorMensalidade));
+            }
+
+            _dbContext.Mensalidades.AddRange(mensalidadesList);
+            _dbContext.SaveChanges();
+        }
+
+        public void Create(int pessoaId, int quantidadeCasas, DateTime mensalidadeInicial, DateTime mensalidadeFinal)
+        {
+            List<Mensalidade> mensalidadesList = new();
             float valorMensalidade = 10 * quantidadeCasas;
 
             while (mensalidadeInicial <= mensalidadeFinal)

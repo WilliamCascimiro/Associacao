@@ -13,7 +13,8 @@ namespace Associacao.Interface.Repositories
         List<Mensalidade> SearchByVencimento(DateTime dataVencimento);
         List<Mensalidade> SearchByPagamento(DateTime dataPagamento);
         Mensalidade Detail(int idMensalidade);
-        void Create(int pessoaId, int quantidadeDeCasas);
+        void Create(int pessoaId, int quantidadeCasas, DateTime mensalidadeInicial, DateTime mensalidadeFinal);
+        void Create(int pessoaId, int quantidadeCasas);
         bool PagarMensalidade(int idMensalidade);
         bool ReabrirMensalidade(int idMensalidade);
         bool ExistePendencia(int idMensalidade);
