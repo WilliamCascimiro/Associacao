@@ -5,7 +5,6 @@ using Associacao.Domain.Entities;
 using Associacao.Interface.Repositories;
 using Associacao.Repository.Common;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 
 namespace Associacao.Repository.Repositories
 {
