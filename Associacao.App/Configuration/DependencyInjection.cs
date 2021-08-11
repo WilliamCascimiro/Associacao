@@ -2,7 +2,7 @@
 using Associacao.Interface.Repositories;
 using Associacao.Repository.Repositories;
 
-namespace Associacao.App
+namespace Associacao.App.Configuration
 {
     public class DependencyInjection
     {

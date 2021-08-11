@@ -1,14 +1,16 @@
-﻿@model IEnumerable<Associacao.Domain.Entities.Pessoa>
+﻿@model IEnumerable<Associacao.App.Models.PessoaViewModel>
+@*@model IEnumerable<Associacao.Domain.Entities.Pessoa>*@
 
 @{
     ViewData["Title"] = "Lista de pessoas";
-    var listaStatusPagamento = (IEnumerable<SelectListItem>)TempData["listaStatusPagamento"];
+    //var listaStatusPagamento = (IEnumerable<SelectListItem>)TempData["listaStatusPagamento"];
+    var listaStatusPagamento = (IEnumerable<SelectListItem>)ViewBag.listaStatusPagamento;
 }
 
 <h1>@ViewData["Title"]</h1>
 
 <p>
-    <a asp-action="Create">Cadastrar Novo</a>
+    <a class="btn btn-info" asp-action="Create">Cadastrar Novo</a>
 </p>
 
 <div class="row">
@@ -16,15 +18,15 @@
         <form asp-action="Index">
             <div class="row">
                 <div class="form-group col-md-1">
-                    <label class="control-label">Cadastro</label>
+                    <label class="control-label" style="font-weight: 500;">Cadastro</label>
                     <input name="cadastro" class="form-control" value="@ViewBag.Cadastro" />
                 </div>
                 <div class="form-group col-md-3">
-                    <label class="control-label">Nome</label>
+                    <label class="control-label" style="font-weight: 500;">Nome</label>
                     <input name="nome" class="form-control" value="@ViewBag.Nome" />
                 </div>
                 <div class="form-group col-md-2">
-                    <label class="control-label">Pagamento</label>
+                    <label class="control-label" style="font-weight: 500;">Status Pagamento</label>
                     @Html.DropDownList("statusPagamento", new SelectList(listaStatusPagamento, "Value", "Text", ViewBag.StatusPagamento), new { @class = "form-control" })
                 </div>
                 <div class="form-group col-md-5">
@@ -37,24 +39,24 @@
     </div>
 </div>
 
-<table class="table">
-    <thead>
+<table class="table table-hover">
+    <thead class="thead-dark">
         <tr>
             <th>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Nome)
+                Nome
             </th>
             <th>
                 Endereço
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Telefone1)
+            <th class="text-center">
+                Telefone
             </th>
-            <th>
+            <th class="text-center">
                 Cadastro
             </th>
-            <th>
+            <th class="text-center">
                 Casa(s)
             </th>
             <th></th>
@@ -63,43 +65,43 @@
     <tbody>
         @foreach (var item in Model)
         {
-        <tr>
-            <td>
-                @if (item.Adimplente)
-                {
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check2-square" viewBox="0 0 16 16" style=" color: #28a745">
-                        <path d="M3 14.5A1.5 1.5 0 0 1 1.5 13V3A1.5 1.5 0 0 1 3 1.5h8a.5.5 0 0 1 0 1H3a.5.5 0 0 0-.5.5v10a.5.5 0 0 0 .5.5h10a.5.5 0 0 0 .5-.5V8a.5.5 0 0 1 1 0v5a1.5 1.5 0 0 1-1.5 1.5H3z" />
-                        <path d="m8.354 10.354 7-7a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0z" />
-                    </svg>
-                }
-                else
-                {
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-square-fill" viewBox="0 0 16 16" style=" color: firebrick">
-                        <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm6 4c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995A.905.905 0 0 1 8 4zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
-                    </svg>
-                }
-            </td>
-            <td>
-                <a asp-action="Details" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Nome)</a>
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Logradouro)
-                @Html.DisplayFor(modelItem => item.Numero)
-                @Html.DisplayFor(modelItem => item.Complemento)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Telefone1)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NumeroCadastro)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.QuantidadeCasas)
-            </td>
-            <td>
-                <a asp-controller="Mensalidade" asp-action="MensalidadesPorPessoa" asp-route-id="@item.Id">Mensalidades</a>
-            </td>
-        </tr>
+            <tr>
+                <td class="text-center">
+                    @if (item.Adimplente)
+                    {
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check2-square" viewBox="0 0 16 16" style=" color: #28a745">
+                            <path d="M3 14.5A1.5 1.5 0 0 1 1.5 13V3A1.5 1.5 0 0 1 3 1.5h8a.5.5 0 0 1 0 1H3a.5.5 0 0 0-.5.5v10a.5.5 0 0 0 .5.5h10a.5.5 0 0 0 .5-.5V8a.5.5 0 0 1 1 0v5a1.5 1.5 0 0 1-1.5 1.5H3z" />
+                            <path d="m8.354 10.354 7-7a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0z" />
+                        </svg>
+                    }
+                    else
+                    {
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-square-fill" viewBox="0 0 16 16" style=" color: firebrick">
+                            <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm6 4c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995A.905.905 0 0 1 8 4zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+                        </svg>
+                    }
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Nome)</a>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Logradouro)
+                    @Html.DisplayFor(modelItem => item.Numero)
+                    @Html.DisplayFor(modelItem => item.Complemento)
+                </td>
+                <td class="text-center">
+                    @Html.DisplayFor(modelItem => item.Telefone1)
+                </td>
+                <td class="text-center">
+                    @Html.DisplayFor(modelItem => item.NumeroCadastro)
+                </td>
+                <td class="text-center">
+                    @Html.DisplayFor(modelItem => item.QuantidadeCasas)
+                </td>
+                <td class="text-right">
+                    <a class="btn btn-info" asp-controller="Mensalidade" asp-action="MensalidadesPorPessoa" asp-route-id="@item.Id">Mensalidades</a>
+                </td>
+            </tr>
         }
     </tbody>
 </table>

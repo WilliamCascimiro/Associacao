@@ -1,39 +1,58 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Associacao.Domain.Entities;
+using Associacao.Infra.Data.Context;
+using Associacao.Infra.Data.Repositories;
 using Associacao.Interface.Repositories;
-using Associacao.Repository.Common;
+using Associacao.Repository.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace Associacao.Repository.Repositories
 {
-    public class PessoaRepository : IPessoaRepository
+    public class PessoaRepository : Repository<Pessoa>, IPessoaRepository
     {
-        protected readonly ApplicationDbContext _dbContext;
+        protected readonly ApplicationDbContext _context;
 
-        public PessoaRepository(ApplicationDbContext dbContext) 
+        public PessoaRepository(ApplicationDbContext context) : base(context)
         {
-            _dbContext = dbContext;
+            _context = context;
         }
 
-        public Pessoa Detail(int id)
+        public async Task<Pessoa> Detail(int id)
         {
-            return  _dbContext.Pessoas
+            return await _context.Pessoas
                     .Include(x => x.Mensalidades)
-                    .Where(x => x.Ativo && x.Id == id)
-                    .FirstOrDefault();
+                    .FirstOrDefaultAsync(x => x.Ativo && x.Id == id);
         }
 
-        public List<Pessoa> Get()
+        //public Pessoa GetWithCurrentYear(int id)
+        //{
+        //    return _context.Pessoas
+        //            .Include(x => x.Mensalidades.Where(m => m.DataVencimento.Year == DateTime.Now.Year).OrderBy(m => m.DataVencimento))
+        //            .FirstOrDefault(x => x.Ativo && x.Id == id);
+        //}
+
+        public async Task<Pessoa> Get(int id)
         {
-            return _dbContext.Pessoas
+            return await _context.Pessoas.FirstOrDefaultAsync(x => x.Ativo && x.Id == id);
+        }
+
+        public async Task<bool> ExistePendencia(int id)
+        {
+            return await _context.Mensalidades.AnyAsync(m => m.DataVencimento < DateTime.Now && !m.Pago);
+        }
+
+        public async Task<List<Pessoa>> Get()
+        {
+            return await _context.Pessoas
                 .Where(p => p.Ativo)
                 .OrderBy(p => p.Nome)
-                .ToList();
+                .ToListAsync();
         }
 
-        public List<Pessoa> GetComplete(string cadastro, string nome, int slcPagamento)
+        public async Task<List<Pessoa>> GetComplete(string cadastro, string nome, int slcPagamento)
         {
             if (String.IsNullOrEmpty(cadastro))
                 cadastro = "";
@@ -48,7 +67,7 @@ namespace Associacao.Repository.Repositories
             else if(slcPagamento == 2)
                 pag = false;
 
-            var result = _dbContext.Pessoas
+            var result = _context.Pessoas
                 .Include(x => x.Mensalidades)
                 .Select(s => new Pessoa
                 {
@@ -64,17 +83,17 @@ namespace Associacao.Repository.Repositories
                 })
                 .ToList();
 
-            result = result.Where(x => x.NumeroCadastro.Contains(cadastro) && 
-                                        x.Nome.Contains(nome) && 
-                                        x.Adimplente == (pag == null ? x.Adimplente : pag)
-                                       ).ToList();
+            result = result.Where(x =>  x.NumeroCadastro.Contains(cadastro) && 
+                                        x.Nome.ToUpper().Contains(nome.ToUpper()) && 
+                                        x.Adimplente == (pag == null ? x.Adimplente : pag))
+                           .ToList();
 
             return result;
         }
 
-        public List<Pessoa> GetComplete()
+        public async Task<List<Pessoa>> GetComplete()
         {
-            var teste = _dbContext.Pessoas
+            var teste = _context.Pessoas
                 .Include(x => x.Mensalidades)
                 .Select(s => new Pessoa
                 {
@@ -88,14 +107,14 @@ namespace Associacao.Repository.Repositories
                     QuantidadeCasas = s.QuantidadeCasas,
                     Adimplente = s.Mensalidades.Where(m => m.DataVencimento < DateTime.Now && m.Pago == false).Count() >= 1 ? false : true
                 })
-                .ToList();
+                .ToListAsync();
 
-            return teste;
+            return await teste;
         }
 
         public void GetComplete2()
         {
-            object ret = _dbContext.Pessoas
+            object ret = _context.Pessoas
                 .Include(x => x.Mensalidades.Where(m => m.DataVencimento < DateTime.Now && m.Pago == false))
                 .Select(s => new Pessoa
                 {
@@ -107,9 +126,9 @@ namespace Associacao.Repository.Repositories
 
         //.FirstOrDefault();
 
-        //var query2 = _dbContext.Pessoas
+        //var query2 = _context.Pessoas
         //    .Join(
-        //        _dbContext.Mensalidades,
+        //        _context.Mensalidades,
         //        pessoa => pessoa.Id,
         //        mensalidade => mensalidade.IdPessoa,
         //        (pessoa, mensalidade) => new
@@ -124,9 +143,9 @@ namespace Associacao.Repository.Repositories
         //.ToList();
 
 
-        //var query2 = _dbContext.Pessoas
+        //var query2 = _context.Pessoas
         //    .GroupJoin(
-        //        _dbContext.Mensalidades,
+        //        _context.Mensalidades,
         //        pessoa => pessoa.Id,
         //        mensalidade => mensalidade.IdPessoa,
         //        (pessoa, mensalidade) => new { Pessoa = pessoa, Mensalidade = mensalidade.DefaultIfEmpty() })
@@ -143,17 +162,17 @@ namespace Associacao.Repository.Repositories
         //    //        (final.Ex.EndDate == null || final.Ex <= DateTime.Now)))
         //    .ToList();
 
-        //var qq = _dbContext.Pessoas(p => p.Nome, p.Mensalidades } );
+        //var qq = _context.Pessoas(p => p.Nome, p.Mensalidades } );
 
-        //var query = from p in _dbContext.Pessoas
-        //            join m in _dbContext.Mensalidades
+        //var query = from p in _context.Pessoas
+        //            join m in _context.Mensalidades
         //                on p.Id equals m.IdPessoa into grouping
         //            select new { p, Menalidades = grouping.Where(p => p.Content.Contains("EF")).ToList() };
 
 
-        //var query2 = _dbContext.Pessoas
+        //var query2 = _context.Pessoas
         //    .GroupJoin(
-        //        _dbContext.Mensalidades,
+        //        _context.Mensalidades,
         //        pessoa => pessoa.Id,
         //        mensalidade => mensalidade.IdPessoa,
         //        (pessoa, mensalidade) => new
@@ -183,7 +202,7 @@ namespace Associacao.Repository.Repositories
 
         public List<Pessoa> Search(string text)
         {
-            return _dbContext.Pessoas
+            return _context.Pessoas
                 .Where(p => p.Ativo && (p.Nome.ToUpper().Contains(text.ToUpper())))
                 .OrderBy(p => p.Nome)
                 .ToList();
@@ -191,13 +210,23 @@ namespace Associacao.Repository.Repositories
 
         public void Create(Pessoa pessoa)
         {
-            _dbContext.Pessoas.Add(pessoa);
-            _dbContext.SaveChanges();
+            _context.Pessoas.Add(pessoa);
+            _context.SaveChanges();
+        }
+
+        public bool NumeroCadastroDisponivel(Pessoa pessoa)
+        {
+            //var numerocadastro = _context.Pessoas.Find(pessoa.NumeroCadastro);
+            var numerocadastro = _context.Pessoas.Where(p => p.NumeroCadastro == pessoa.Numero).FirstOrDefault();
+            if (numerocadastro != null)
+                return false;
+
+            return true;
         }
 
         public int Alterar(Pessoa pessoa)
         {
-            var entity = _dbContext.Pessoas.Find(pessoa.Id);
+            var entity = _context.Pessoas.Find(pessoa.Id);
             if (entity == null)
                 return 0;
 
@@ -206,8 +235,8 @@ namespace Associacao.Repository.Repositories
 
             try
             {
-                _dbContext.Pessoas.Update(entity);
-                _dbContext.SaveChanges();
+                _context.Pessoas.Update(entity);
+                _context.SaveChanges();
                 return entity.Id;
             }
             catch (Exception ex)
@@ -216,5 +245,6 @@ namespace Associacao.Repository.Repositories
             }
         }
 
+        
     }
 }

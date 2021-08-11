@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using Associacao.Domain.Entities;
-using Associacao.Repository.Common;
 using Associacao.Interface.Repositories;
-using Microsoft.Extensions.DependencyInjection;
 using Associacao.App.Models;
+using Associacao.Domain.Enums;
+using System.Linq;
+using Associacao.App.Configuration;
+using AutoMapper;
 
 namespace Associacao.App.Controllers
 {
@@ -18,103 +17,81 @@ namespace Associacao.App.Controllers
     {
         protected readonly IMensalidadeRepository _mensalidadeRepository;
         protected readonly IPessoaRepository _pessoaRepository;
+        protected readonly IMapper _mapper;
 
-        public MensalidadeController(IMensalidadeRepository mensalidadeRepository, IPessoaRepository pessoaRepository)
+        public MensalidadeController(IMensalidadeRepository mensalidadeRepository, IPessoaRepository pessoaRepository, IMapper mapper)
         {
             _mensalidadeRepository = mensalidadeRepository;
             _pessoaRepository = pessoaRepository;
+            _mapper = mapper;
         }
-        //[HttpGet]
+
+        
         [Route("")]
         [Route("index")]
-        public IActionResult Index(DateTime? dataVencimentoInicial, DateTime? dataVencimentoFinal, int statusPagamento)
+        public async Task<IActionResult> Index(DateTime? dataVencimentoInicial, DateTime? dataVencimentoFinal, int statusPagamento)
         {
-            var mensalidades = _mensalidadeRepository.GetAll(dataVencimentoInicial, dataVencimentoFinal, statusPagamento);
-            var listaMensalidadeViewModel = new List<MensalidadeViewModel>();
+            string dataVencimentoInicialPadrao = "";
+            string dataVencimentoFinalPadrao = "";
+            int ultimoDiaDoMes = DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month);
 
-            foreach (var mensalidade in mensalidades)
+            if (dataVencimentoInicial == null)
             {
-                var mensalidadeViewModel = new MensalidadeViewModel()
-                {
-                    Id = mensalidade.Id,
-                    DataVencimento = mensalidade.DataVencimento,
-                    DataPagamento = mensalidade.DataPagamento,
-                    Valor = mensalidade.Valor,
-                    Pago = mensalidade.Pago,
-                    Pessoa = mensalidade.Pessoa,
-                };
-                listaMensalidadeViewModel.Add(mensalidadeViewModel);
+                dataVencimentoInicialPadrao = DateTime.Now.Year + "-" + DateTime.Now.Month + "-01";
+                dataVencimentoInicial = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 01);
+            }
+            if (dataVencimentoFinal == null)
+            {
+                dataVencimentoFinalPadrao = DateTime.Now.Year + "-" + DateTime.Now.Month + "-" + ultimoDiaDoMes.ToString();
+                dataVencimentoFinal = new DateTime(DateTime.Now.Year, DateTime.Now.Month, ultimoDiaDoMes);
             }
 
-            var listaTipoPagamento = new List<SelectListItem> {
-                new SelectListItem() { Value = "0", Text = "Todos" },
-                new SelectListItem() { Value = "1", Text = "Pago" },
-                new SelectListItem() { Value = "2", Text = "Não pago" }
-            };
-            TempData["listaTipoPagamento"] = listaTipoPagamento;
-
-            ViewBag.DataVencimentoInicial = (dataVencimentoInicial is null ? "" : $"{dataVencimentoInicial.Value.Year}-{dataVencimentoInicial.Value.Month.ToString("d2")}-{dataVencimentoInicial.Value.Day.ToString("d2")}");
-            ViewBag.DataVencimentoFinal = (dataVencimentoFinal is null ? "" : $"{dataVencimentoFinal.Value.Year}-{dataVencimentoFinal.Value.Month.ToString("d2")}-{dataVencimentoFinal.Value.Day.ToString("d2")}");
+            ViewBag.listaTipoPagamento = ListaTipoPagamento();
+            ViewBag.DataVencimentoInicial = (dataVencimentoInicial is null ? dataVencimentoInicialPadrao : $"{dataVencimentoInicial.Value.Year}-{dataVencimentoInicial.Value.Month.ToString("d2")}-{dataVencimentoInicial.Value.Day.ToString("d2")}");
+            ViewBag.DataVencimentoFinal = (dataVencimentoFinal is null ? dataVencimentoFinalPadrao : $"{dataVencimentoFinal.Value.Year}-{dataVencimentoFinal.Value.Month.ToString("d2")}-{dataVencimentoFinal.Value.Day.ToString("d2")}");
             ViewBag.SlcPagamento = statusPagamento;
 
-            return View(listaMensalidadeViewModel);
+            return View(_mapper.Map<IEnumerable<MensalidadeViewModel>>(_mensalidadeRepository.Get(dataVencimentoInicial, dataVencimentoFinal, statusPagamento)));
         }
 
-        // GET: Mensalidade
-        //public async Task<IActionResult> Index()
-        //{
-        //    //var rep = (IMensalidadeRepository)_serviceProvider.GetService(typeof(IMensalidadeRepository));
-        //    //return View(await applicationDbContext.ToListAsync());
-
-        //    //var applicationDbContext = _context.Mensalidades.Include(m => m.Pessoa).Select(m => new { m.DataVencimento, m.Pessoa.Nome });
-        //    //return View(await applicationDbContext.ToListAsync());
-        //}
-
-        [Route("mensalidade-por-pessoa")]
-        public IActionResult MensalidadesPorPessoa(int id)
+        [Route("mensalidade-por-pessoa/{id?}")]
+        public async Task<IActionResult> MensalidadesPorPessoa(int id, DateTime? dataVencimentoInicial, DateTime? dataVencimentoFinal, int? statusPagamento)
         {
-            var pessoa = _pessoaRepository.Detail(id);
-            var mensalidades = _mensalidadeRepository.MensalidadePorPessoaAnoCorrente(id);
+            var pessoa = await _pessoaRepository.Detail(id);
 
+            string dataVencimentoInicialPadrao = "";
+            string dataVencimentoFinalPadrao = "";
+
+            if (dataVencimentoInicial == null)
+            {
+                dataVencimentoInicialPadrao = DateTime.Now.Year + "-01" + "-01";
+                dataVencimentoInicial = new DateTime(DateTime.Now.Year, 01, 01);
+            }
+            if (dataVencimentoFinal == null)
+            {
+                dataVencimentoFinalPadrao = DateTime.Now.Year + "-12" + "-31";
+                dataVencimentoFinal = new DateTime(DateTime.Now.Year, 12, 31);
+            }
+
+            TempData["listaTipoPagamento"] = ListaTipoPagamento();
             ViewBag.NomePessoa = pessoa.Nome;
+            ViewBag.DataVencimentoInicial = (dataVencimentoInicial is null ? dataVencimentoInicialPadrao : $"{dataVencimentoInicial.Value.Year}-{dataVencimentoInicial.Value.Month.ToString("d2")}-{dataVencimentoInicial.Value.Day.ToString("d2")}");
+            ViewBag.DataVencimentoFinal = (dataVencimentoFinal is null ? dataVencimentoFinalPadrao : $"{dataVencimentoFinal.Value.Year}-{dataVencimentoFinal.Value.Month.ToString("d2")}-{dataVencimentoFinal.Value.Day.ToString("d2")}");
+            ViewBag.SlcPagamento = statusPagamento;
+
+            var mensalidades = _mensalidadeRepository.MensalidadePorPessoa(id, dataVencimentoInicial, dataVencimentoFinal, statusPagamento);
 
             return View(mensalidades);
         }
 
         [HttpGet]
-        [Route("MensalidadesPorPessoaGet")]
-        public IActionResult MensalidadesPorPessoaGet(int id)
+        [Route("MensalidadesPorPessoaAnoCorrente")]
+        public IActionResult MensalidadesPorPessoaAnoCorrente(int id)
         {
             var mensalidades = _mensalidadeRepository.MensalidadePorPessoaAnoCorrente(id);
             var mensalidadeViewModel = new MensalidadeViewModel().ToListViewModel(mensalidades);
 
             return new JsonResult(mensalidadeViewModel);
-        }
-
-        //[HttpPost]
-        //public JsonResult MensalidadesPorPessoaPost()
-        //{
-        //    var mensalidadeRepository = (IMensalidadeRepository)_serviceProvider.GetService(typeof(IMensalidadeRepository));
-        //    var mensalidades = mensalidadeRepository.MensalidadePorPessoaAnoCorrente(10);
-
-        //    return new JsonResult(mensalidades);
-        //}
-
-        // GET: Mensalidade/Details/5
-        public async Task<IActionResult> Details(int id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var mensalidade = _mensalidadeRepository.Detail(id);
-            if (mensalidade == null)
-            {
-                return NotFound();
-            }
-
-            return View(mensalidade);
         }
 
         [HttpPost]
@@ -131,116 +108,13 @@ namespace Associacao.App.Controllers
             return new JsonResult(_mensalidadeRepository.ReabrirMensalidade(id));
         }
 
-        //// GET: Mensalidade/Create
-        //public IActionResult Create()
-        //{
-        //    ViewData["IdPessoa"] = new SelectList(_context.Pessoas, "Id", "Bairro");
-        //    return View();
-        //}
+        private List<SelectListItem> ListaTipoPagamento()
+        {
+            return Enum.GetValues(typeof(StatusPagamentoEnum))
+                        .Cast<StatusPagamentoEnum>()
+                        .Select(x => new SelectListItem { Text = x.ToString(), Value = ((int)x).ToString() })
+                        .ToList();
+        }
 
-        // POST: Mensalidade/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Create([Bind("Id,DataVencimento,DataPagamento,Pago,IdPessoa")] Mensalidade mensalidade)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        _context.Add(mensalidade);
-        //        await _context.SaveChangesAsync();
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    ViewData["IdPessoa"] = new SelectList(_context.Pessoas, "Id", "Bairro", mensalidade.IdPessoa);
-        //    return View(mensalidade);
-        //}
-
-        // GET: Mensalidade/Edit/5
-        //public async Task<IActionResult> Edit(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    var mensalidade = await _context.Mensalidades.FindAsync(id);
-        //    if (mensalidade == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    ViewData["IdPessoa"] = new SelectList(_context.Pessoas, "Id", "Bairro", mensalidade.IdPessoa);
-        //    return View(mensalidade);
-        //}
-
-        //// POST: Mensalidade/Edit/5
-        //// To protect from overposting attacks, enable the specific properties you want to bind to.
-        //// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Edit(int id, [Bind("Id,DataVencimento,DataPagamento,Pago,IdPessoa")] Mensalidade mensalidade)
-        //{
-        //    if (id != mensalidade.Id)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    if (ModelState.IsValid)
-        //    {
-        //        try
-        //        {
-        //            _context.Update(mensalidade);
-        //            await _context.SaveChangesAsync();
-        //        }
-        //        catch (DbUpdateConcurrencyException)
-        //        {
-        //            if (!MensalidadeExists(mensalidade.Id))
-        //            {
-        //                return NotFound();
-        //            }
-        //            else
-        //            {
-        //                throw;
-        //            }
-        //        }
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    ViewData["IdPessoa"] = new SelectList(_context.Pessoas, "Id", "Bairro", mensalidade.IdPessoa);
-        //    return View(mensalidade);
-        //}
-
-        //// GET: Mensalidade/Delete/5
-        //public async Task<IActionResult> Delete(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    var mensalidade = await _context.Mensalidades
-        //        .Include(m => m.Pessoa)
-        //        .FirstOrDefaultAsync(m => m.Id == id);
-        //    if (mensalidade == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    return View(mensalidade);
-        //}
-
-        //// POST: Mensalidade/Delete/5
-        //[HttpPost, ActionName("Delete")]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> DeleteConfirmed(int id)
-        //{
-        //    var mensalidade = await _context.Mensalidades.FindAsync(id);
-        //    _context.Mensalidades.Remove(mensalidade);
-        //    await _context.SaveChangesAsync();
-        //    return RedirectToAction(nameof(Index));
-        //}
-
-        //private bool MensalidadeExists(int id)
-        //{
-        //    return _context.Mensalidades.Any(e => e.Id == id);
-        //}
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Associacao.Domain.Entities;
 
 
@@ -7,8 +8,8 @@ namespace Associacao.Interface.Repositories
 {
     public interface IMensalidadeRepository
     {
-        List<Mensalidade> GetAll();
-        List<Mensalidade> GetAll(DateTime? dataVencimentoInicial, DateTime? dataVencimentoFinal, int slcPagamento);        
+        Task<List<Mensalidade>> Get();
+        List<Mensalidade> Get(DateTime? dataVencimentoInicial, DateTime? dataVencimentoFinal, int slcPagamento);        
         List<Mensalidade> Search(int idPessoa);
         List<Mensalidade> SearchByVencimento(DateTime dataVencimento);
         List<Mensalidade> SearchByPagamento(DateTime dataPagamento);
@@ -18,7 +19,8 @@ namespace Associacao.Interface.Repositories
         bool PagarMensalidade(int idMensalidade);
         bool ReabrirMensalidade(int idMensalidade);
         bool ExistePendencia(int idMensalidade);
-        List<Mensalidade> PorPessoa(int idPessoa);
+        public List<Mensalidade> MensalidadePorPessoa(int idPessoa);
+        public List<Mensalidade> MensalidadePorPessoa(int idPessoa, DateTime? dataVencimentoInicial, DateTime? dataVencimentoFinal, int? slcPagamento);
         List<Mensalidade> MensalidadePorPessoaAnoCorrente(int idPessoa);
 
     }

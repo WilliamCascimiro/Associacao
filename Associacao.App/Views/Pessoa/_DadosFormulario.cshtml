@@ -67,6 +67,15 @@
     <textarea asp-for="Observacao" class="form-control"></textarea>
     <span asp-validation-for="Observacao" class="text-danger"></span>
 </div>
+<div class="form-group col-md-2">
+    <br />
+    <div class="custom-file">
+        <input type="file" class="custom-file-input" id="ImagemUpload" style="width: 80px; height: 70px;" asp-for="ImagemUpload" />
+        <img src="https://i1.wp.com/terracoeconomico.com.br/wp-content/uploads/2019/01/default-user-image.png?ssl=1" 
+             data-browse="Procurar" class="custom-file-label" for="ImagemUpload" style="width: 80px; height: 70px;" />
+        <label style="display: none" id="img_none"></label>
+    </div>
+</div>
 <div class="form-check col-md-1" style="padding-left: 2.25rem; margin-top:30px;">
     <input asp-for="Ativo" type="checkbox" class="form-check-input" />
     <label asp-for="Ativo" class="form-check-label"></label>
@@ -77,5 +86,5 @@
     <label asp-for="Isento" class="form-check-label"></label>
     <span asp-validation-for="Isento" class="text-danger"></span>
 </div>
-<div class="form-group col-md-4">
+<div class="form-group col-md-2">
 </div>

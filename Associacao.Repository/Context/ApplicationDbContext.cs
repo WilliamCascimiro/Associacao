@@ -1,16 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Associacao.Domain.Entities;
-using Associacao.Repository.Maps;
+using Associacao.Repository.Mapping;
 
-namespace Associacao.Repository.Common
+namespace Associacao.Infra.Data.Context
 { 
     public class ApplicationDbContext : DbContext
     {
-        //public ApplicationDbContext()
-        //{
-        //    ChangeTracker.AutoDetectChangesEnabled = false;
-        //}
-
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
             ChangeTracker.AutoDetectChangesEnabled = false;
@@ -24,7 +19,9 @@ namespace Associacao.Repository.Common
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfigurationsFromAssembly(GetType().Assembly);
+            //modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
             //modelBuilder.ApplyConfiguration(new PessoaMap());
         }
+
     }
 }

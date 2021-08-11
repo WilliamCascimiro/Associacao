@@ -7,8 +7,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Associacao.Infra.Data.Context;
 
-namespace Associacao.Repository.Common
+namespace Associacao.Repository.Context
 {
     public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
     {

@@ -4,8 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Associacao.Domain;
 using Associacao.Domain.Entities;
+using Associacao.Infra.Data.Context;
 using Associacao.Interface.Repositories;
-using Associacao.Repository.Common;
+using Associacao.Repository.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace Associacao.Repository.Repositories
@@ -58,12 +59,37 @@ namespace Associacao.Repository.Repositories
                 .FirstOrDefault(m => m.Id == idMensalidade);
         }
 
-        public List<Mensalidade> PorPessoa(int idPessoa)
+        public List<Mensalidade> MensalidadePorPessoa(int idPessoa, DateTime? dataVencimentoInicial, DateTime? dataVencimentoFinal, int? slcPagamento)
         {
-            return _dbContext.Mensalidades
-                .Where(m => m.IdPessoa == idPessoa)
-                .OrderBy(m => m.DataVencimento)
-                .ToList();
+            bool? pago = null;
+            if (slcPagamento == 1)
+                pago = true;
+            else if (slcPagamento == 2)
+                pago = false;
+
+            var select = _dbContext.Mensalidades.Include(m => m.Pessoa).ToList();
+
+            var result = select
+                        .Where(x => x.DataVencimento >= (dataVencimentoInicial == null ? x.DataVencimento : dataVencimentoInicial)
+                                 && x.DataVencimento <= (dataVencimentoFinal == null ? x.DataVencimento : dataVencimentoFinal)
+                                 && x.Pago == (pago == null ? x.Pago : pago)
+                                 && x.IdPessoa == idPessoa)
+                        .OrderBy(m => m.DataVencimento)
+                        .ToList();
+            
+            return result;
+        }
+
+        public List<Mensalidade> MensalidadePorPessoa(int idPessoa)
+        {
+            var select = _dbContext.Mensalidades.Include(m => m.Pessoa).ToList();
+
+            var result = select
+                        .Where(x => x.IdPessoa == idPessoa)
+                        .OrderBy(m => m.DataVencimento)
+                        .ToList();
+
+            return result;
         }
 
         public List<Mensalidade> MensalidadePorPessoaAnoCorrente(int idPessoa)
@@ -75,12 +101,12 @@ namespace Associacao.Repository.Repositories
         }
 
 
-        public List<Mensalidade> GetAll()
+        public async Task<List<Mensalidade>> Get()
         {
-            return _dbContext.Mensalidades.Include(m => m.Pessoa).ToList();
+            return await _dbContext.Mensalidades.Include(m => m.Pessoa).ToListAsync();
         }
 
-        public List<Mensalidade> GetAll(DateTime? dataVencimentoInicial, DateTime? dataVencimentoFinal, int slcPagamento)
+        public List<Mensalidade> Get(DateTime? dataVencimentoInicial, DateTime? dataVencimentoFinal, int slcPagamento)
         {
             bool? pago = null;
             if (slcPagamento == 1)
@@ -90,10 +116,10 @@ namespace Associacao.Repository.Repositories
 
             var select = _dbContext.Mensalidades.Include(m => m.Pessoa).ToList();
             var result = select
-                        .Where(x => x.DataVencimento >= (dataVencimentoInicial == null ? x.DataVencimento : dataVencimentoInicial) 
-                                 && x.DataVencimento <= (dataVencimentoFinal == null ? x.DataVencimento : dataVencimentoFinal)
-                                 && x.Pago == (pago == null ? x.Pago : pago) )
-                        .ToList();
+                         .Where(x => x.DataVencimento >= (dataVencimentoInicial == null ? x.DataVencimento : dataVencimentoInicial) 
+                                  && x.DataVencimento <= (dataVencimentoFinal == null ? x.DataVencimento : dataVencimentoFinal)
+                                  && x.Pago == (pago == null ? x.Pago : pago) )
+                         .ToList();
 
             return result;
         }

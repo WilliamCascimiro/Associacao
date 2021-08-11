@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Associacao.Domain.Entities;
 
-namespace Associacao.Repository.Maps
+namespace Associacao.Repository.Mapping
 {
     public class ConfiguracaoMap : IEntityTypeConfiguration<Configuracao>
     {

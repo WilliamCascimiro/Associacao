@@ -4,8 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Associacao.Domain;
 using Associacao.Domain.Entities;
+using Associacao.Infra.Data.Context;
 using Associacao.Interface.Repositories;
-using Associacao.Repository.Common;
+using Associacao.Repository.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace Associacao.Repository.Repositories

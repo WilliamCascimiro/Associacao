@@ -28,10 +28,36 @@ namespace Associacao.App.Controllers
             return View();
         }
 
+        [Route("erro/{id:length(3, 3)}")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        public IActionResult Error(int id)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            var modelErrro = new ErrorViewModel();
+
+            if (id == 500)
+            {
+                modelErrro.Titulo = "Ocorreu um erro";
+                modelErrro.Message = "Ocorreu um erro";
+                modelErrro.ErroCode = id;
+            }
+            else if (id == 404)
+            {
+                modelErrro.Titulo = "Ops! Página não encontrada.";
+                modelErrro.Message = "Ops! Página não encontrada.";
+                modelErrro.ErroCode = id;
+            }
+            else if (id == 403)
+            {
+                modelErrro.Message = "Acesso negado";
+                modelErrro.Titulo = "Acesso negado";
+                modelErrro.ErroCode = id;
+            }
+            else
+            {
+                return StatusCode(404);
+            }
+
+            return View(modelErrro);
         }
     }
 }

@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31205.134
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Associacao.Repository", "Associacao.Repository\Associacao.Repository.csproj", "{96E49C47-7624-4D3A-8F53-F9610072BE10}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Associacao.Infra.Data", "Associacao.Repository\Associacao.Infra.Data.csproj", "{96E49C47-7624-4D3A-8F53-F9610072BE10}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Associacao.Domain", "Associacao.Domain\Associacao.Domain.csproj", "{7B9B23F1-6275-4CBB-8FE9-C115185E8C8C}"
 EndProject

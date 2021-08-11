@@ -7,6 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="5.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.6" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.6">
@@ -28,7 +30,11 @@
   <ItemGroup>
     <ProjectReference Include="..\Associacao.Domain\Associacao.Domain.csproj" />
     <ProjectReference Include="..\Associacao.Interface\Associacao.Interface.csproj" />
-    <ProjectReference Include="..\Associacao.Repository\Associacao.Repository.csproj" />
+    <ProjectReference Include="..\Associacao.Repository\Associacao.Infra.Data.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\imagens\" />
   </ItemGroup>
 
 </Project>

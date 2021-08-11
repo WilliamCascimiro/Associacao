@@ -1,60 +1,48 @@
-﻿using Microsoft.AspNetCore.Http;
-using Associacao.Domain.Entities;
+﻿using Associacao.Domain.Entities;
 using Associacao.Interface.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Linq;
 using Associacao.App.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using AutoMapper;
+using System.Threading.Tasks;
+using System;
+using Microsoft.AspNetCore.Http;
+using System.IO;
 
 namespace Associacao.App.Controllers
 {
     [Route("pessoa")]
-    public class PessoaController : Controller
+    public class PessoaController : BaseController
     {
         protected readonly IPessoaRepository _pessoaRepository;
         protected readonly IMensalidadeRepository _mensalidadeRepository;
+        protected readonly IMapper _mapper;
 
-        public PessoaController(IPessoaRepository pessoaRepository, IMensalidadeRepository mensalidadeRepository)
+        public PessoaController(IPessoaRepository pessoaRepository, IMensalidadeRepository mensalidadeRepository, IMapper mapper)
         {
             _pessoaRepository = pessoaRepository;
             _mensalidadeRepository = mensalidadeRepository;
+            _mapper = mapper;
         }
 
         [Route("")]
         [Route("Index")]
-        public IActionResult Index(string cadastro, string nome, int statusPagamento)
+        public async Task<IActionResult> Index(string cadastro, string nome, int statusPagamento)
         {
-            //Preenche o drop down da tela
-            TempData["listaStatusPagamento"] = ListaStatusPagamento();
-
-            //Persiste os filtros de consulta
+            ViewBag.listaStatusPagamento = ListaStatusPagamento();
             ViewBag.Cadastro = cadastro;
             ViewBag.Nome = nome;
             ViewBag.StatusPagamento = statusPagamento;
 
-            var pessoa = _pessoaRepository.GetComplete(cadastro, nome, statusPagamento);
-            return View(pessoa);
-        }
-
-        [Route("detalhe/{id?}")]
-        public ActionResult Details(int id)
-        {
-            var pessoa = _pessoaRepository.Detail(id);
-            var mensalidades = _mensalidadeRepository.PorPessoa(id).Take(10);
-
-            ViewBag.Ativo = pessoa.Ativo == true ? "Ativo" : "Desativado";
-
-            var pessoaMensalidadeViewModel = new PessoaMensalidadeViewModel() { Pessoa = pessoa, Mensalidades = mensalidades };
-
-            return View(pessoaMensalidadeViewModel);
+            return View(_mapper.Map<IEnumerable<PessoaViewModel>>(await _pessoaRepository.GetComplete(cadastro, nome, statusPagamento)));
         }
 
         [HttpGet]
-        [Route("ExistePendencia")]
-        public IActionResult ExistePendencia(int id)
+        [Route("detalhe/{id?}")]
+        public async Task<IActionResult> Details(int id)
         {
-            return new JsonResult(_mensalidadeRepository.ExistePendencia(id));
+            return View(_mapper.Map<PessoaViewModel>(await _pessoaRepository.Get(id)));
         }
 
         [HttpGet]
@@ -67,81 +55,124 @@ namespace Associacao.App.Controllers
         [ValidateAntiForgeryToken]
         [HttpPost]
         [Route("cadastrar")]
-        public IActionResult Create(PessoaViewModel pessoaViewModel)
+        public async Task<IActionResult> Create(PessoaViewModel pessoaViewModel)
         {
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid) return View(pessoaViewModel);
+
+            var pessoa = _mapper.Map<Pessoa>(pessoaViewModel);
+
+            if (ValidaPessoa(pessoa))
             {
-                return View(pessoaViewModel);
-            }
+                var fileName = Guid.NewGuid() + "_" + pessoaViewModel.ImagemUpload.FileName;
+                if (!await UploadArquivo(pessoaViewModel.ImagemUpload, fileName))
+                {
+                    return View(pessoaViewModel);
+                }
 
-            Pessoa pessoa = pessoaViewModel.ToEntity();
-
-            _pessoaRepository.Create(pessoa);
-            _mensalidadeRepository.Create(pessoa.Id, pessoa.QuantidadeCasas);
-
-            try
-            {
+                pessoa.Imagem = fileName;
+                await _pessoaRepository.Adcionar(pessoa);
+                _mensalidadeRepository.Create(pessoa.Id, pessoa.QuantidadeCasas);
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            else
             {
                 return View();
             }
         }
 
         [Route("editar/{id?}")]
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            return View(new PessoaViewModel().ToViewModel(_pessoaRepository.Detail(id)));
+            var pessoaViewModel = _mapper.Map<PessoaViewModel>(await _pessoaRepository.Detail(id));
+
+            if (pessoaViewModel == null) return NotFound();
+
+            return View(pessoaViewModel);
         }
 
         [ValidateAntiForgeryToken]
         [HttpPost]
-        [Route("Edit")]
-        public IActionResult Edit(int id, Pessoa pessoa)
+        [Route("editar/{id?}")]
+        public async Task<IActionResult> Edit(int id, PessoaViewModel pessoaViewModel)
         {
-            _pessoaRepository.Alterar(pessoa);
+            if (id != pessoaViewModel.Id) return NotFound();
+            if (!ModelState.IsValid) return View(pessoaViewModel);
 
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            var pessoa = _mapper.Map<Pessoa>(pessoaViewModel);
+            await _pessoaRepository.Atualizar(pessoa);
+            
+            return RedirectToAction(nameof(Index));
         }
 
         [Route("Delete")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            return View();
+            var pessoaViewModel = _mapper.Map<PessoaViewModel>(await _pessoaRepository.Get(id));
+
+            if (pessoaViewModel == null) return NotFound();
+
+            return View(pessoaViewModel);
         }
 
-        // POST: PessoaController/Delete/5
         [ValidateAntiForgeryToken]
         [HttpPost]
         [Route("Delete")]
-        public IActionResult Delete(int id, IFormCollection collection)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            var pessoaViewModel = _mapper.Map<PessoaViewModel>(await _pessoaRepository.Get(id));
+            
+            if (pessoaViewModel == null) return NotFound();
+
+            await _pessoaRepository.Remover(id);
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        [Route("ExistePendencia")]
+        public IActionResult ExistePendencia(int id)
+        {
+            return new JsonResult(_pessoaRepository.ExistePendencia(id));
+        }
+
+        private bool ValidaPessoa(Pessoa pessoa)
+        {
+            bool passou = true;
+
+            if (!_pessoaRepository.NumeroCadastroDisponivel(pessoa))
+                return passou = false;
+
+            return passou;
         }
 
         private List<SelectListItem> ListaStatusPagamento()
         {
-            return 
-                new List<SelectListItem> {
+            return  new List<SelectListItem> {
                         new SelectListItem() { Value = "0", Text = "Todos" },
                         new SelectListItem() { Value = "1", Text = "Em dia" },
                         new SelectListItem() { Value = "2", Text = "Em atraso" }
                     };
+        }
+
+        private async Task<bool> UploadArquivo(IFormFile arquivo, string fileName)
+        {
+            if (arquivo.Length <= 0)
+                return false;
+
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/imagens", fileName);
+
+            if (System.IO.File.Exists(path))
+            {
+                ModelState.AddModelError(string.Empty, "Já existe um arquivo com este nome!");
+                return false;
+            }
+
+            using (var stream = new FileStream (path, FileMode.Create))
+            {
+                await arquivo.CopyToAsync(stream);
+            }
+
+            return true;
         }
 
     }

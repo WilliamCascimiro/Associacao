@@ -8,7 +8,7 @@
 <br />
 <div class="row">
     <div class="col-md-12">
-        <form asp-action="Create">
+        <form asp-action="Create" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="row">
                 <partial name="_DadosFormulario" />
@@ -25,4 +25,15 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $("#ImagemUpload").change(function () {
+            $("#img_none").text(this.files[0].name);
+            $("#img_none")[0].style.display = 'block';
+        });
+
+        $("#ImagemUpload").attr("data-val", "true");
+        $("#ImagemUpload").attr("data-val-required", "Preencha o campo imagem");
+    </script>
+
 }

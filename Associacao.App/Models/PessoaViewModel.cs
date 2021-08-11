@@ -2,6 +2,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
 using Associacao.Domain.Entities;
+using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
 
 namespace Associacao.App.Models
 {
@@ -79,6 +81,16 @@ namespace Associacao.App.Models
 
         [DisplayName("Isento")]
         public bool Isento { get; set; }
+
+        [ScaffoldColumn(false)]
+        public DateTime CriadoEm { get; set; }
+
+        public virtual List<Mensalidade> Mensalidades { get; set; }
+
+        public string Imagem { get; set; }
+        public IFormFile ImagemUpload { get; set; }
+
+        public bool Adimplente { get; set; }
 
         public Pessoa ToEntity()
         {

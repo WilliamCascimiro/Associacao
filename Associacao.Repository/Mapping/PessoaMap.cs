@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Associacao.Domain.Entities;
 
-namespace Associacao.Repository.Maps
+namespace Associacao.Repository.Mapping
 {
     public class PessoaMap : IEntityTypeConfiguration<Pessoa>
     {
@@ -32,7 +32,7 @@ namespace Associacao.Repository.Maps
             builder.Property(x => x.Isento).HasColumnName("isento").IsRequired();
             builder.Property(x => x.Ativo).HasColumnName("ativo").IsRequired();
             builder.Property(x => x.CriadoEm).HasColumnName("criado_em");
-            builder.Ignore(x => x.NomeResumido);
+            builder.Property(x => x.Imagem).HasColumnName("imagem");
             builder.Ignore(x => x.Adimplente);
         }
     }
