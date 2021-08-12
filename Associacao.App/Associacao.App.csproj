@@ -31,6 +31,7 @@
     <ProjectReference Include="..\Associacao.Domain\Associacao.Domain.csproj" />
     <ProjectReference Include="..\Associacao.Interface\Associacao.Interface.csproj" />
     <ProjectReference Include="..\Associacao.Repository\Associacao.Infra.Data.csproj" />
+    <ProjectReference Include="..\Associacao.Service\Associacao.Service.csproj" />
   </ItemGroup>
 
   <ItemGroup>

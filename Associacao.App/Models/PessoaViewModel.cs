@@ -88,6 +88,8 @@ namespace Associacao.App.Models
         public virtual List<Mensalidade> Mensalidades { get; set; }
 
         public string Imagem { get; set; }
+
+        [ScaffoldColumn(false)]
         public IFormFile ImagemUpload { get; set; }
 
         public bool Adimplente { get; set; }

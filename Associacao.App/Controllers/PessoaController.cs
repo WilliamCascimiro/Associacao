@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System;
 using Microsoft.AspNetCore.Http;
 using System.IO;
+using Associacao.Interface.Services;
 
 namespace Associacao.App.Controllers
 {
@@ -17,12 +18,14 @@ namespace Associacao.App.Controllers
     {
         protected readonly IPessoaRepository _pessoaRepository;
         protected readonly IMensalidadeRepository _mensalidadeRepository;
+        protected readonly IPessoaService _pessoaService;
         protected readonly IMapper _mapper;
 
-        public PessoaController(IPessoaRepository pessoaRepository, IMensalidadeRepository mensalidadeRepository, IMapper mapper)
+        public PessoaController(IPessoaRepository pessoaRepository, IMensalidadeRepository mensalidadeRepository, IMapper mapper, IPessoaService pessoaService)
         {
             _pessoaRepository = pessoaRepository;
             _mensalidadeRepository = mensalidadeRepository;
+            _pessoaService = pessoaService;
             _mapper = mapper;
         }
 
@@ -42,7 +45,7 @@ namespace Associacao.App.Controllers
         [Route("detalhe/{id?}")]
         public async Task<IActionResult> Details(int id)
         {
-            return View(_mapper.Map<PessoaViewModel>(await _pessoaRepository.Get(id)));
+            return View(_mapper.Map<PessoaViewModel>(await _pessoaRepository.ObterPorId(id)));
         }
 
         [HttpGet]
@@ -58,26 +61,18 @@ namespace Associacao.App.Controllers
         public async Task<IActionResult> Create(PessoaViewModel pessoaViewModel)
         {
             if (!ModelState.IsValid) return View(pessoaViewModel);
-
             var pessoa = _mapper.Map<Pessoa>(pessoaViewModel);
 
-            if (ValidaPessoa(pessoa))
+            if (pessoaViewModel.ImagemUpload != null && !String.IsNullOrEmpty(pessoaViewModel.ImagemUpload.FileName))
             {
                 var fileName = Guid.NewGuid() + "_" + pessoaViewModel.ImagemUpload.FileName;
-                if (!await UploadArquivo(pessoaViewModel.ImagemUpload, fileName))
-                {
+                if(!await UploadArquivo(pessoaViewModel.ImagemUpload, fileName))
                     return View(pessoaViewModel);
-                }
-
                 pessoa.Imagem = fileName;
-                await _pessoaRepository.Adcionar(pessoa);
-                _mensalidadeRepository.Create(pessoa.Id, pessoa.QuantidadeCasas);
-                return RedirectToAction(nameof(Index));
             }
-            else
-            {
-                return View();
-            }
+
+            await _pessoaService.Cadastrar(pessoa);            
+            return RedirectToAction(nameof(Index));
         }
 
         [Route("editar/{id?}")]
@@ -98,16 +93,33 @@ namespace Associacao.App.Controllers
             if (id != pessoaViewModel.Id) return NotFound();
             if (!ModelState.IsValid) return View(pessoaViewModel);
 
-            var pessoa = _mapper.Map<Pessoa>(pessoaViewModel);
-            await _pessoaRepository.Atualizar(pessoa);
+            var pessoaAtualizacao = await _pessoaRepository.ObterPorId(id);
+            pessoaViewModel.Imagem = pessoaAtualizacao.Imagem;
+
+            if (pessoaViewModel.ImagemUpload != null && !String.IsNullOrEmpty(pessoaViewModel.ImagemUpload.FileName))
+            {
+                var fileName = Guid.NewGuid() + "_" + pessoaViewModel.ImagemUpload.FileName;
+                if (!await UploadArquivo(pessoaViewModel.ImagemUpload, fileName))
+                    return View(pessoaViewModel);
+                
+                pessoaAtualizacao.Imagem = fileName;
+            }
+
+            await _pessoaRepository.Atualizar(_mapper.Map<Pessoa>(pessoaViewModel));
             
             return RedirectToAction(nameof(Index));
+            
+
+            //var pessoa = _mapper.Map<Pessoa>(pessoaViewModel);
+            //await _pessoaRepository.Atualizar(pessoa);
+
+            //return RedirectToAction(nameof(Index));
         }
 
         [Route("Delete")]
         public async Task<IActionResult> Delete(int id)
         {
-            var pessoaViewModel = _mapper.Map<PessoaViewModel>(await _pessoaRepository.Get(id));
+            var pessoaViewModel = _mapper.Map<PessoaViewModel>(await _pessoaRepository.ObterPorId(id));
 
             if (pessoaViewModel == null) return NotFound();
 
@@ -119,7 +131,7 @@ namespace Associacao.App.Controllers
         [Route("Delete")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var pessoaViewModel = _mapper.Map<PessoaViewModel>(await _pessoaRepository.Get(id));
+            var pessoaViewModel = _mapper.Map<PessoaViewModel>(await _pessoaRepository.ObterPorId(id));
             
             if (pessoaViewModel == null) return NotFound();
 
@@ -135,15 +147,7 @@ namespace Associacao.App.Controllers
             return new JsonResult(_pessoaRepository.ExistePendencia(id));
         }
 
-        private bool ValidaPessoa(Pessoa pessoa)
-        {
-            bool passou = true;
-
-            if (!_pessoaRepository.NumeroCadastroDisponivel(pessoa))
-                return passou = false;
-
-            return passou;
-        }
+        
 
         private List<SelectListItem> ListaStatusPagamento()
         {

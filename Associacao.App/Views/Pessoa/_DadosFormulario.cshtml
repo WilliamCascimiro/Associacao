@@ -1,4 +1,5 @@
 ﻿@model Associacao.App.Models.PessoaViewModel
+@{string image = (Model != null && !String.IsNullOrEmpty(Model.Imagem)) ? "/imagens/"+Model.Imagem : "https://i1.wp.com/terracoeconomico.com.br/wp-content/uploads/2019/01/default-user-image.png?ssl=1";}
 
 <div class="form-group col-md-2">
     <label asp-for="NumeroCadastro" class="control-label"></label>
@@ -71,7 +72,7 @@
     <br />
     <div class="custom-file">
         <input type="file" class="custom-file-input" id="ImagemUpload" style="width: 80px; height: 70px;" asp-for="ImagemUpload" />
-        <img src="https://i1.wp.com/terracoeconomico.com.br/wp-content/uploads/2019/01/default-user-image.png?ssl=1" 
+        <img src="@image"
              data-browse="Procurar" class="custom-file-label" for="ImagemUpload" style="width: 80px; height: 70px;" />
         <label style="display: none" id="img_none"></label>
     </div>

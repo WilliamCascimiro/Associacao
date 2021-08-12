@@ -7,6 +7,9 @@ using Npgsql;
 using Associacao.Infra.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Associacao.App.Configuration;
+using System.Globalization;
+using Microsoft.AspNetCore.Localization;
+using System.Collections.Generic;
 
 namespace Associacao.App
 {
@@ -34,6 +37,10 @@ namespace Associacao.App
             //services.AddAutoMapper();
             //services.AddDependencyInjection();
             services.Config(Configuration);
+            //services.AddMvc(o => 
+            //{
+            //    o.ModelBindingMessageProvider.
+            //});
             services.AddControllersWithViews().AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore); ;
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
         }
@@ -56,6 +63,15 @@ namespace Associacao.App
             app.UseRouting();
 
             app.UseAuthorization();
+
+            var defaultCulture = new CultureInfo("pt-BR");
+            var localizationOptions = new RequestLocalizationOptions
+            {
+                DefaultRequestCulture = new RequestCulture(defaultCulture),
+                SupportedCultures = new List<CultureInfo> { defaultCulture },
+                SupportedUICultures = new List<CultureInfo> { defaultCulture },
+            };
+            app.UseRequestLocalization(localizationOptions);
 
             app.UseEndpoints(endpoints =>
             {

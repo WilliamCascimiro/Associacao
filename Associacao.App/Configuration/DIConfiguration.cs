@@ -1,7 +1,9 @@
 ﻿using Associacao.Infra.Data.Context;
 using Associacao.Interface.Repositories;
+using Associacao.Interface.Services;
 using Associacao.Repository.Context;
 using Associacao.Repository.Repositories;
+using Associacao.Service.Service;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +19,7 @@ namespace Associacao.App.Configuration
         public static IServiceCollection Config(this IServiceCollection services, IConfiguration configuration)
         {
             services = AddDependencyInjection(services);
+            services = AddDIService(services);
             services = AddContext(services, configuration);
             services = AddAutoMapper(services);
 
@@ -46,6 +49,13 @@ namespace Associacao.App.Configuration
             services.AddScoped<IPessoaRepository, PessoaRepository>();
             services.AddScoped<IMensalidadeRepository, MensalidadeRepository>();
             services.AddScoped<IConfiguracaoRepository, ConfiguracaoRepository>();
+
+            return services;
+        }
+
+        public static IServiceCollection AddDIService(IServiceCollection services)
+        {
+            services.AddScoped<IPessoaService, PessoaService>();
 
             return services;
         }
