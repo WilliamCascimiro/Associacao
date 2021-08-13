@@ -56,7 +56,7 @@ namespace Associacao.App.Controllers
         [Route("mensalidade-por-pessoa/{id?}")]
         public async Task<IActionResult> MensalidadesPorPessoa(int id, DateTime? dataVencimentoInicial, DateTime? dataVencimentoFinal, int? statusPagamento)
         {
-            var pessoa = await _pessoaRepository.Detail(id);
+            var pessoa = await _pessoaRepository.ObterPorId(id);
 
             string dataVencimentoInicialPadrao = "";
             string dataVencimentoFinalPadrao = "";

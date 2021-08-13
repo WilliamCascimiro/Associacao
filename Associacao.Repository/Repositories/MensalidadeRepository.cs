@@ -24,9 +24,6 @@ namespace Associacao.Repository.Repositories
 
         public async void Create(Pessoa pessoa, Configuracao configuracao)
         {
-            //var config = await _configuracaoRepository.ObterPorId(1);
-            //var config = await _dbContext.Configuracoes.Obter _configuracaoRepository.ObterPorId2(1);            
-
             List<Mensalidade> mensalidadesList = new();
             var mensalidadeInicial = configuracao.DataCobrancaInicial;
             var mensalidadeFinal = configuracao.DataCobrancaFinal;
@@ -40,28 +37,6 @@ namespace Associacao.Repository.Repositories
 
             _dbContext.Mensalidades.AddRange(mensalidadesList);
             _dbContext.SaveChanges();
-        }
-
-        public void Create(int pessoaId, int quantidadeCasas, DateTime mensalidadeInicial, DateTime mensalidadeFinal)
-        {
-            List<Mensalidade> mensalidadesList = new();
-            float valorMensalidade = 10 * quantidadeCasas;
-
-            while (mensalidadeInicial <= mensalidadeFinal)
-            {
-                mensalidadeInicial = mensalidadeInicial.AddMonths(1);
-                mensalidadesList.Add(new Mensalidade(pessoaId, mensalidadeInicial, valorMensalidade));
-            }
-
-            _dbContext.Mensalidades.AddRange(mensalidadesList);
-            _dbContext.SaveChanges();
-        }
-
-        public Mensalidade Detail(int? idMensalidade)
-        {
-            return _dbContext.Mensalidades
-                .Include(m => m.Pessoa)
-                .FirstOrDefault(m => m.Id == idMensalidade);
         }
 
         public List<Mensalidade> MensalidadePorPessoa(int idPessoa, DateTime? dataVencimentoInicial, DateTime? dataVencimentoFinal, int? slcPagamento)
@@ -91,12 +66,6 @@ namespace Associacao.Repository.Repositories
                 .Where(m => m.IdPessoa == idPessoa && m.DataVencimento.Year == DateTime.Now.Year)
                 .OrderBy(m => m.DataVencimento)
                 .ToList();
-        }
-
-
-        public async Task<List<Mensalidade>> Get()
-        {
-            return await _dbContext.Mensalidades.Include(m => m.Pessoa).ToListAsync();
         }
 
         public List<Mensalidade> Get(DateTime? dataVencimentoInicial, DateTime? dataVencimentoFinal, int slcPagamento)

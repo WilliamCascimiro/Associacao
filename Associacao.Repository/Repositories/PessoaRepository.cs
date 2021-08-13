@@ -20,16 +20,11 @@ namespace Associacao.Repository.Repositories
             _context = context;
         }
 
-        public async Task<Pessoa> Detail(int id)
-        {
-            return await _context.Pessoas
-                    .Include(x => x.Mensalidades)
-                    .FirstOrDefaultAsync(x => x.Ativo && x.Id == id);
-        }
-
         public override async Task<Pessoa> ObterPorId(int id)
         {
-            return await _context.Pessoas.FirstOrDefaultAsync(x => x.Ativo && x.Id == id);
+            return await _context.Pessoas
+                .Include(x => x.Mensalidades)
+                .FirstOrDefaultAsync(x => x.Ativo && x.Id == id);
         }
 
         public async Task<List<Pessoa>> GetComplete(string cadastro, string nome, int slcPagamento)

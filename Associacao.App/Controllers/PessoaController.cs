@@ -78,7 +78,7 @@ namespace Associacao.App.Controllers
         [Route("editar/{id?}")]
         public async Task<IActionResult> Edit(int id)
         {
-            var pessoaViewModel = _mapper.Map<PessoaViewModel>(await _pessoaRepository.Detail(id));
+            var pessoaViewModel = _mapper.Map<PessoaViewModel>(await _pessoaRepository.ObterPorId(id));
 
             if (pessoaViewModel == null) return NotFound();
 
