@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Associacao.Domain.Entities;
 
 namespace Associacao.Interface.Repositories
 {
-    public interface IConfiguracaoRepository
+    public interface IConfiguracaoRepository : IRepository<Configuracao>
     {
         Configuracao Get();
-        int Alterar(Configuracao configuracao);
+        Task<Configuracao> ObterPorId2(int id);
     }
 }

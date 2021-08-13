@@ -27,19 +27,9 @@ namespace Associacao.Repository.Repositories
                     .FirstOrDefaultAsync(x => x.Ativo && x.Id == id);
         }
 
-        //public async Task<Pessoa> Get(int id)
-        //{
-        //    return await _context.Pessoas.FirstOrDefaultAsync(x => x.Ativo && x.Id == id);
-        //}
-
         public override async Task<Pessoa> ObterPorId(int id)
         {
             return await _context.Pessoas.FirstOrDefaultAsync(x => x.Ativo && x.Id == id);
-        }
-
-        public async Task<bool> ExistePendencia(int id)
-        {
-            return await _context.Mensalidades.AnyAsync(m => m.DataVencimento < DateTime.Now && !m.Pago);
         }
 
         public async Task<List<Pessoa>> GetComplete(string cadastro, string nome, int slcPagamento)
@@ -84,9 +74,14 @@ namespace Associacao.Repository.Repositories
             return select;
         }
 
-        public bool NumeroCadastroDisponivel(Pessoa pessoa)
+        public bool NumeroCadastroJaExiste(Pessoa pessoa)
         {
-            return _context.Pessoas.Any(p => p.NumeroCadastro == pessoa.Numero);
+            return _context.Pessoas.Any(p => p.NumeroCadastro == pessoa.NumeroCadastro);
+        }
+
+        public async Task<bool> ExistePendencia(int id)
+        {
+            return await _context.Mensalidades.AnyAsync(m => m.DataVencimento < DateTime.Now && !m.Pago);
         }
 
         public override async Task Atualizar(Pessoa pessoa)
@@ -95,8 +90,22 @@ namespace Associacao.Repository.Repositories
             if (entity == null)
                 return;
 
+            entity.NumeroCadastro = pessoa.NumeroCadastro;
             entity.Nome = pessoa.Nome;
             entity.RG = pessoa.RG;
+            entity.DataNascimento = pessoa.DataNascimento;
+            entity.Telefone1 = pessoa.Telefone1;
+            entity.Telefone2 = pessoa.Telefone2;
+            entity.QuantidadeCasas = pessoa.QuantidadeCasas;
+            entity.Logradouro = pessoa.Logradouro;
+            entity.Numero = pessoa.Numero;
+            entity.Complemento = pessoa.Complemento;
+            entity.Bairro = pessoa.Bairro;
+            entity.Cep = pessoa.Cep;
+            entity.Observacao = pessoa.Observacao;
+            entity.Ativo = pessoa.Ativo;
+            entity.Isento = pessoa.Isento;
+            entity.Imagem = pessoa.Imagem != null ? pessoa.Imagem : entity.Imagem;
 
             _context.Pessoas.Update(entity);
             await SaveChanges();

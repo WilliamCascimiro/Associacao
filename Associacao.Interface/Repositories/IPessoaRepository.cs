@@ -9,7 +9,7 @@ namespace Associacao.Interface.Repositories
         //Task<Pessoa> Get(int id);
         Task<bool> ExistePendencia(int id);
         Task<Pessoa> Detail(int id);
-        bool NumeroCadastroDisponivel(Pessoa pessoa);
+        bool NumeroCadastroJaExiste(Pessoa pessoa);
         //Task<int> Atualizar(Pessoa pessoa);
         Task Atualizar(Pessoa pessoa);
         Task<List<Pessoa>> GetComplete(string cadastro, string nome, int slcPagamento);

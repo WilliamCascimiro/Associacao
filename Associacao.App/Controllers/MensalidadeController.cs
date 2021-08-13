@@ -7,7 +7,6 @@ using Associacao.Interface.Repositories;
 using Associacao.App.Models;
 using Associacao.Domain.Enums;
 using System.Linq;
-using Associacao.App.Configuration;
 using AutoMapper;
 
 namespace Associacao.App.Controllers

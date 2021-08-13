@@ -3,8 +3,8 @@ using System.Threading.Tasks;
 
 namespace Associacao.Interface.Services
 {
-    public interface IPessoaService
+    public interface IMensalidadeService
     {
-        Task Cadastrar(Pessoa pessoa);
+        Task Cadastrar(Mensalidade pessoa);
     }
 }

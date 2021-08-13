@@ -93,16 +93,13 @@ namespace Associacao.App.Controllers
             if (id != pessoaViewModel.Id) return NotFound();
             if (!ModelState.IsValid) return View(pessoaViewModel);
 
-            var pessoaAtualizacao = await _pessoaRepository.ObterPorId(id);
-            pessoaViewModel.Imagem = pessoaAtualizacao.Imagem;
-
             if (pessoaViewModel.ImagemUpload != null && !String.IsNullOrEmpty(pessoaViewModel.ImagemUpload.FileName))
             {
                 var fileName = Guid.NewGuid() + "_" + pessoaViewModel.ImagemUpload.FileName;
                 if (!await UploadArquivo(pessoaViewModel.ImagemUpload, fileName))
                     return View(pessoaViewModel);
-                
-                pessoaAtualizacao.Imagem = fileName;
+
+                pessoaViewModel.Imagem = fileName;
             }
 
             await _pessoaRepository.Atualizar(_mapper.Map<Pessoa>(pessoaViewModel));

@@ -20,6 +20,7 @@ namespace Associacao.Repository.Mapping
             builder.Property(x => x.DataCobrancaFinal).HasColumnName("data_cobranca_final").IsRequired();
             builder.Property(x => x.ValorMensalidade).HasColumnName("valor_mensalidade").IsRequired();
             builder.Property(x => x.DataUltimaAtualizacao).HasColumnName("data_ultima_atualizacao");
+            builder.Property(x => x.CriadoEm).HasColumnName("criado_em").HasMaxLength(100);
         }
     }
 }

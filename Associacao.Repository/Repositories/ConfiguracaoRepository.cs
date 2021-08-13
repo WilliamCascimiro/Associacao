@@ -5,42 +5,43 @@ using System.Threading.Tasks;
 using Associacao.Domain;
 using Associacao.Domain.Entities;
 using Associacao.Infra.Data.Context;
+using Associacao.Infra.Data.Repositories;
 using Associacao.Interface.Repositories;
 using Associacao.Repository.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace Associacao.Repository.Repositories
 {
-    public class ConfiguracaoRepository : IConfiguracaoRepository
+    public class ConfiguracaoRepository : Repository<Configuracao>, IConfiguracaoRepository
     {
         protected readonly ApplicationDbContext _dbContext;
 
-        public ConfiguracaoRepository(ApplicationDbContext dbContext)
+        public ConfiguracaoRepository(ApplicationDbContext dbContext) : base(dbContext)
         {
             _dbContext = dbContext;
         }
 
-        public int Alterar(Configuracao configuracao)
+        public async override Task Atualizar(Configuracao configuracao)
         {
-            var entity = _dbContext.Configuracoes.Find(configuracao.Id);
-            if (entity == null)
-                return 0;
+            var entity = await ObterPorId(configuracao.Id);
 
             entity.DataCobrancaInicial = configuracao.DataCobrancaInicial;
             entity.DataCobrancaFinal = configuracao.DataCobrancaFinal;
             entity.ValorMensalidade = configuracao.ValorMensalidade;
             entity.DataUltimaAtualizacao = DateTime.Now;
 
-            try
-            {
-                _dbContext.Configuracoes.Update(entity);
-                _dbContext.SaveChanges();
-                return entity.Id;
-            }
-            catch (Exception ex)
-            {
-                return 0;
-            }
+            _dbContext.Configuracoes.Update(entity);
+            _dbContext.SaveChanges();
+        }
+
+        public override async Task<Configuracao> ObterPorId(int id)
+        {
+            return await _context.Configuracoes.FirstOrDefaultAsync(x => x.Id == id);
+        }
+
+        public async Task<Configuracao> ObterPorId2(int id)
+        {
+            return await _context.Configuracoes.FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public Configuracao Get()

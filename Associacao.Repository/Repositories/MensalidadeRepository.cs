@@ -5,32 +5,37 @@ using System.Threading.Tasks;
 using Associacao.Domain;
 using Associacao.Domain.Entities;
 using Associacao.Infra.Data.Context;
+using Associacao.Infra.Data.Repositories;
 using Associacao.Interface.Repositories;
 using Associacao.Repository.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace Associacao.Repository.Repositories
 {
-    public class MensalidadeRepository : IMensalidadeRepository
+    public class MensalidadeRepository : Repository<Mensalidade>, IMensalidadeRepository
     {
         protected readonly ApplicationDbContext _dbContext;
+        //protected readonly IConfiguracaoRepository _configuracaoRepository;
 
-        public MensalidadeRepository(ApplicationDbContext dbContext)
+        public MensalidadeRepository(ApplicationDbContext dbContext) : base(dbContext)
         {
             _dbContext = dbContext;
         }
 
-        public void Create(int pessoaId, int quantidadeCasas)
+        public async void Create(Pessoa pessoa, Configuracao configuracao)
         {
+            //var config = await _configuracaoRepository.ObterPorId(1);
+            //var config = await _dbContext.Configuracoes.Obter _configuracaoRepository.ObterPorId2(1);            
+
             List<Mensalidade> mensalidadesList = new();
-            var mensalidadeInicial = new DateTime(2020, 12, 30);
-            var mensalidadeFinal = new DateTime(2022, 12, 30);
-            float valorMensalidade = 10 * quantidadeCasas;
+            var mensalidadeInicial = configuracao.DataCobrancaInicial;
+            var mensalidadeFinal = configuracao.DataCobrancaFinal;
+            float valorMensalidade = (configuracao.ValorMensalidade * pessoa.QuantidadeCasas);
 
             while (mensalidadeInicial <= mensalidadeFinal)
             {
                 mensalidadeInicial = mensalidadeInicial.AddMonths(1);
-                mensalidadesList.Add(new Mensalidade(pessoaId, mensalidadeInicial, valorMensalidade));
+                mensalidadesList.Add(new Mensalidade(pessoa.Id, mensalidadeInicial, valorMensalidade));
             }
 
             _dbContext.Mensalidades.AddRange(mensalidadesList);
@@ -80,18 +85,6 @@ namespace Associacao.Repository.Repositories
             return result;
         }
 
-        public List<Mensalidade> MensalidadePorPessoa(int idPessoa)
-        {
-            var select = _dbContext.Mensalidades.Include(m => m.Pessoa).ToList();
-
-            var result = select
-                        .Where(x => x.IdPessoa == idPessoa)
-                        .OrderBy(m => m.DataVencimento)
-                        .ToList();
-
-            return result;
-        }
-
         public List<Mensalidade> MensalidadePorPessoaAnoCorrente(int idPessoa)
         {
             return _dbContext.Mensalidades
@@ -124,32 +117,10 @@ namespace Associacao.Repository.Repositories
             return result;
         }
 
-        public List<Mensalidade> Search(int idPessoa)
+        public async Task<bool> PagarMensalidade(int idMensalidade)
         {
-            throw new NotImplementedException();
-        }
-
-        public List<Mensalidade> SearchByPagamento(DateTime dataPagamento)
-        {
-            throw new NotImplementedException();
-        }
-
-        public List<Mensalidade> SearchByVencimento(DateTime dataVencimento)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Mensalidade Detail(int idMensalidade)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool PagarMensalidade(int idMensalidade)
-        {
-            Mensalidade mensalidade = _dbContext.Mensalidades.Find(idMensalidade);
-            if (mensalidade == null)
-                return false;
-
+            var mensalidade = await ObterPorId(idMensalidade);
+            if (mensalidade == null) return false;
             mensalidade.PagarMensalidade();
 
             try
@@ -165,17 +136,10 @@ namespace Associacao.Repository.Repositories
 
         }
 
-        public Mensalidade RecuperaMensalidade(int idMensalidade)
+        public async Task<bool> ReabrirMensalidade(int idMensalidade)
         {
-            return _dbContext.Mensalidades.Find(idMensalidade);
-        }
-
-        public bool ReabrirMensalidade(int idMensalidade)
-        {
-            var mensalidade = RecuperaMensalidade(idMensalidade);
-            if (mensalidade == null)
-                return false;
-
+            var mensalidade = await ObterPorId(idMensalidade);
+            if (mensalidade == null) return false;
             mensalidade.ReabrirMensalidade();
 
             try
@@ -190,9 +154,5 @@ namespace Associacao.Repository.Repositories
             }
         }
 
-        public bool ExistePendencia(int idPessoa)
-        {
-            return _dbContext.Mensalidades.Any(m => m.DataVencimento < DateTime.Now && !m.Pago);
-        }
     }
 }

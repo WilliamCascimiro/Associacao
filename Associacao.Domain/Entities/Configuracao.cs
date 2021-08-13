@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace Associacao.Domain.Entities
 {
-    public class Configuracao
+    public class Configuracao : BaseDomain
     {
-        public int Id { get; set; }
         public DateTime DataCobrancaInicial { get; set; }
         public DateTime DataCobrancaFinal { get; set; }
         public float ValorMensalidade { get; set; }

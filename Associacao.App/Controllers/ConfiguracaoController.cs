@@ -49,7 +49,7 @@ namespace Associacao.App.Controllers
                 ValorMensalidade = float.Parse(configuracaoViewModel.ValorMensalidade.Replace(".", "").Replace(",", ".")),
             };
 
-            _configuracaoRepository.Alterar(configuracao);
+            _configuracaoRepository.Atualizar(configuracao);
 
             return RedirectToAction(nameof(Index));
         }
